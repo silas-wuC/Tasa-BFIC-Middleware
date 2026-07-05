@@ -1,0 +1,5 @@
+# 標註所有檔案自動處理換行
+* text=auto
+
+# 強制所有文本檔案在存入 repo 時轉為 LF
+* text eol=lf

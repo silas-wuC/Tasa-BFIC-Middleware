@@ -1,0 +1,42 @@
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+# Keep ABI layout for TMYtek beam vendor libs (contents are local binaries).
+!cpp_pkg_assets/lib/
+!cpp_pkg_assets/lib/**/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ROS 2 Build & Install artifacts
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# C++ Build artifacts
+*.o
+*.obj
+*.a
+*.lib
+
+# OS generated files
+.DS_Store
+Thumbs.db
+.aider*
