@@ -47,9 +47,9 @@ extern "C" {
 #define TASA_CMD_MUX_CHANNEL_MASK 0x0Fu /* 4-bit channel field, bits [4:1] */
 
 /* Register_Mode one-hot values, Ctrl_FPGA=1 side (Register Table sheet) */
-#define TASA_REG_MODE_SYSTEM 0x8u    /* FPGA/HW version, Pol/Beam ID, Beam mode, BFIC Reset */
-#define TASA_REG_MODE_I2C_STATE 0x4u /* SLV_DIR / REG_BASE / LEN_N / START / STATE */
-#define TASA_REG_MODE_I2C_WRITE 0x2u /* WDATA[0..255] */
+#define TASA_REG_MODE_SYSTEM 0x8u     /* FPGA/HW version, Pol/Beam ID, Beam mode, BFIC Reset */
+#define TASA_REG_MODE_I2C_STATE 0x4u  /* SLV_DIR / REG_BASE / LEN_N / START / STATE */
+#define TASA_REG_MODE_I2C_WRITE 0x2u  /* WDATA[0..255] */
 #define TASA_REG_MODE_I2C_RESULT 0x1u /* RDATA[0..255] */
 
 /* Largest single System-side burst this link supports (I2C Write/Result
@@ -65,6 +65,8 @@ typedef enum {
     TASA_OK = 0,
     TASA_ERR_INVALID_ARG = -1,
     TASA_ERR_SPI = -2,
+    TASA_ERR_TIMEOUT = -3,
+    TASA_ERR_NACK = -4,
 } tasa_status_t;
 
 /**
@@ -126,8 +128,7 @@ tasa_status_t tasa_fpga_sys_read(tasa_fpga_dev_t* dev, uint8_t reg_mode, uint8_t
  * @param mux_channel  4-bit target selector (0 = broadcast, per legacy
  *                     precedent in CDP-Eureka-MCU's AIP_SPI channel field).
  */
-tasa_status_t tasa_fpga_mux_xfer(tasa_fpga_dev_t* dev, uint8_t mux_channel, const uint8_t* tx, uint8_t* rx,
-                                 size_t len);
+tasa_status_t tasa_fpga_mux_xfer(tasa_fpga_dev_t* dev, uint8_t mux_channel, const uint8_t* tx, uint8_t* rx, size_t len);
 
 #ifdef __cplusplus
 }
