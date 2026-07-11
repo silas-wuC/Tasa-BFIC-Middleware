@@ -1,5 +1,7 @@
 #include "tasa_bfic_bridge.h"
 
+/* SPI intercept point: F6222 driver calls this; we retunnel through the FPGA
+ * MUX link with the bridge's fixed mode as the leading command byte. */
 int tasa_bfic_bridge_spi_xfer(void* ctx, const uint8_t* tx, uint8_t* rx, size_t len) {
     tasa_bfic_bridge_t* bridge = (tasa_bfic_bridge_t*)ctx;
 
