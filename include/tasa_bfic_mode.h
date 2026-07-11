@@ -1,9 +1,9 @@
 /*
  * tasa_bfic_mode.h — BFIC MUX mode definitions (GPIO 6-bit field, 0x00–0x2F).
  *
- * Each mode value maps to the FPGA routing table: bits [6:1] of the MUX-side
- * SPI command byte.  TX/RX share the same hex value; BF9 entries (0x09,
- * 0x12, 0x1B, 0x24) are TX-only per the mode table.
+ * Each mode value drives 6 MUX-select GPIOs (one bit per pin) to route the
+ * MCU SPI bus to the target BFIC device.  TX/RX share the same hex value;
+ * BF9 entries (0x09, 0x12, 0x1B, 0x24) are TX-only per the mode table.
  */
 
 #pragma once
@@ -93,12 +93,8 @@ static inline uint8_t tasa_bfic_mode_raw(tasa_bfic_mux_mode_t mode) { return (ui
 
 static inline bool tasa_bfic_mode_is_valid(tasa_bfic_mux_mode_t mode) { return (uint8_t)mode <= TASA_BFIC_MODE_MAX; }
 
-static inline uint8_t tasa_bfic_mode_to_cmd(tasa_bfic_mux_mode_t mode) {
-    return (uint8_t)(((uint8_t)mode & TASA_BFIC_MODE_MASK) << 1u);
-}
-
-static inline tasa_bfic_mux_mode_t tasa_bfic_mode_from_cmd(uint8_t cmd) {
-    return (tasa_bfic_mux_mode_t)((cmd >> 1u) & TASA_BFIC_MODE_MASK);
+static inline uint8_t tasa_bfic_mode_gpio_bits(tasa_bfic_mux_mode_t mode) {
+    return (uint8_t)mode & TASA_BFIC_MODE_MASK;
 }
 
 static inline bool tasa_bfic_mode_is_aip(tasa_bfic_mux_mode_t mode) {
