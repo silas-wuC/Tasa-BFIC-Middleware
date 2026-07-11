@@ -1,8 +1,9 @@
 /*
  * tasa_bfic_bridge.h — adapts RENESAS-F6222-Driver onto the FPGA MUX link.
  *
- * Implements f6222_dev_t.spi_xfer by tunnelling native BFIC frames through
- * tasa_fpga_mux_xfer(), so existing f6222_* API calls work unmodified.
+ * Implements f6222_dev_t.spi_xfer by routing native BFIC frames through
+ * tasa_fpga_mux_xfer() (GPIO MUX select + SPI), so existing f6222_* API
+ * calls work unmodified.
  */
 
 #pragma once
