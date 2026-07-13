@@ -93,7 +93,11 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 
 **USART3（printf / log 用）**
 
-左側 **Connectivity → USART3** → Mode `Asynchronous` → `PD8 = TX`、`PD9 = RX`。
+左側 **Connectivity → USART3** → Mode `Asynchronous`。
+
+> ⚠️ USART3_TX/RX 在 H743 有**多組可選腳**（PB10/PB11、PD8/PD9、PC10/PC11…）。CubeMX 選 Async 後會**自動挑第一個可用腳**（新版常落在 **PB10=TX / PB11=RX**），不一定跟範本的 **PD8/PD9** 相同。
+>
+> **腳位以你板子實際接線為準，不要照抄範本。** 若板子 UART 接在別的腳：先在晶片圖點目前被佔的腳 → 選 `Reset_State` 解除，再點目標腳選 `USART3_TX` / `USART3_RX`（點目標 TX 腳時 CubeMX 也會自動把舊腳讓開）。
 
 **GPIO（片選 CSB、RST、MODE、LED 等）**
 
@@ -323,7 +327,7 @@ make clean && compiledb make -j
 | Toolchain | Makefile |
 | Debug | Serial Wire（PA13/PA14）|
 | SPI1 | Master, PA5=SCK / PA6=MISO / PB5=MOSI, 8-bit |
-| USART3 | Async, PD8=TX / PD9=RX |
+| USART3 | Async；範本 PD8=TX / PD9=RX（新版預設 PB10/PB11，依板子接線改）|
 | GPIO Out | PB0, PB7, PB14, PD14(初始高) |
 | Clock | HSE Crystal，SYSCLK 64 MHz（未拉 PLL）|
 | CLT 路徑 | `/opt/st/stm32cubeclt_1.21.0/GNU-tools-for-STM32/bin` |
