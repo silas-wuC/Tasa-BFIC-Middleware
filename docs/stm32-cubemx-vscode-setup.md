@@ -41,10 +41,18 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 ### 2.1 選晶片
 
 1. 開 STM32CubeMX → **File → New Project**。
-2. 右上搜尋框輸入完整料號 **`STM32H743ZIT6`**（你的 `STM32H743ZIT6U` 的 `U` 只是出貨/包裝變體，晶片 die、腳位、記憶體全同 → CubeMX 就選 `STM32H743ZITx`，封裝 **LQFP144**）。
-3. 雙擊選中 → 進 **Pinout & Configuration** 畫面。
+2. 右上搜尋框輸入 **`STM32H743ZIT`**。列表通常跳出**兩列**：
 
-> 對照範本 `.ioc`：`Mcu.CPN=STM32H743ZIT6`、`Mcu.Package=LQFP144`。
+   | 料號 | 差別 | 選？ |
+   |------|------|------|
+   | `STM32H743ZIT6` | Tray 出貨 | ✅ 選這個 |
+   | `STM32H743ZIT6TR` | Tape & Reel（打帶捲盤，量產貼片機用）| ❌ |
+
+   兩者晶片 die、腳位、記憶體、Reference（都是 `STM32H743ZITx`）**完全相同**，差別只在出貨包裝。CubeMX 只認 Reference，選哪個產出程式碼一模一樣。你的 `STM32H743ZIT6U`（`U` 也只是包裝/等級變體）同屬這顆，選第一列 `STM32H743ZIT6` 即可。
+
+3. 選中 `STM32H743ZIT6`（封裝 **LQFP144**）→ 按 **Start Project** → 進 **Pinout & Configuration** 畫面。
+
+> 對照範本 `.ioc`：`Mcu.CPN=STM32H743ZIT6`、`Mcu.Package=LQFP144`、`Mcu.Name=STM32H743ZITx`。
 
 ### 2.2 時脈來源（RCC）
 
