@@ -116,7 +116,7 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 
 MUX 用 GPIO 輸出選通道（見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 `gpio_set_mux`）。推薦這連續 6 隻，**在 NUCLEO-H743ZI2 上全部落在同一個 Zio 接頭 CN10**：
 
-| STM32 腳 | 建議 User Label | MUX bit | **真腳** | 該腳預設功能(參考) |
+| STM32 腳 | 建議 User Label | MUX bit | **針腳** | 該腳預設功能(參考) |
 |---------|-----------------|---------|---------|------------------|
 | PE7 | `MUX_SEL0` | bit0 | **CN10 pin16** | TIM1_ETR |
 | PE8 | `MUX_SEL1` | bit1 | **CN10 pin18** | TIM1_CH1N |
