@@ -114,16 +114,22 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 
 **GPIO MUX 選擇線（6-bit）建議腳位：`PE7`–`PE12`**
 
-MUX 用 GPIO 輸出選通道（見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 `gpio_set_mux`）。推薦這連續 6 隻：
+MUX 用 GPIO 輸出選通道（見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 `gpio_set_mux`）。推薦這連續 6 隻，**在 NUCLEO-H743ZI2 上全部落在同一個 Zio 接頭 CN10**：
 
-| 腳 | 建議 User Label | MUX bit |
-|----|-----------------|---------|
-| PE7 | `MUX_SEL0` | bit0 |
-| PE8 | `MUX_SEL1` | bit1 |
-| PE9 | `MUX_SEL2` | bit2 |
-| PE10 | `MUX_SEL3` | bit3 |
-| PE11 | `MUX_SEL4` | bit4 |
-| PE12 | `MUX_SEL5` | bit5 |
+| STM32 腳 | 建議 User Label | MUX bit | **CN10 針腳** | 該腳預設功能(參考) |
+|---------|-----------------|---------|--------------|------------------|
+| PE7 | `MUX_SEL0` | bit0 | **pin 16** | TIM1_ETR |
+| PE8 | `MUX_SEL1` | bit1 | **pin 18** | TIM1_CH1N |
+| PE9 | `MUX_SEL2` | bit2 | **pin 22** | TIM1_CH1 |
+| PE10 | `MUX_SEL3` | bit3 | **pin 20** | TIM1_CH2N |
+| PE11 | `MUX_SEL4` | bit4 | **pin 24** | TIM1_CH2 |
+| PE12 | `MUX_SEL5` | bit5 | **pin 26** | TIM1_CH3N |
+
+> 針腳位置查自 ST **UM2407**（NUCLEO-H743ZI2 User Manual）Table 21 CN10 Zio Connector。CN10 是板子上的 ST Zio 接頭之一（Arduino 相容擴充腳）。
+>
+> ⚠️ **接線照 STM32 腳名對，不要照 pin 號順序**：CN10 上 PE9=pin22、PE10=pin20 是**對調**的（pin20 在 pin22 前面）。焊 `MUX_SEL2`(PE9) 要接 pin22、`MUX_SEL3`(PE10) 接 pin20。
+>
+> 6 隻全在 CN10 且都是偶數 pin（同一排），排線集中好接。GND 可取 CN10 上任一 GND pin（如 pin 8）。
 
 **選這 6 隻的理由**：
 
@@ -363,7 +369,7 @@ make clean && compiledb make -j
 | SPI1 | Master, PA5=SCK / PA6=MISO / PB5=MOSI, 8-bit |
 | USART3 | Async；範本 PD8=TX / PD9=RX（新版預設 PB10/PB11，依板子接線改）|
 | GPIO Out | PB0, PB7, PB14, PD14(初始高) |
-| GPIO MUX (建議) | PE7–PE12（6-bit，連續 bit 7~12，同 port GPIOE）|
+| GPIO MUX (建議) | PE7–PE12（6-bit，bit 7~12，同 port GPIOE）；NUCLEO-H743ZI2 全在 CN10：PE7=p16 PE8=p18 PE9=p22 PE10=p20 PE11=p24 PE12=p26 |
 | Clock | HSE Crystal，SYSCLK 64 MHz（未拉 PLL）|
 | CLT 路徑 | `/opt/st/stm32cubeclt_1.21.0/GNU-tools-for-STM32/bin` |
 | 燒錄 | OpenOCD + ST-Link，`target/stm32h7x.cfg` |
