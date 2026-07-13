@@ -40,3 +40,30 @@ ros2_ws/log/
 .DS_Store
 Thumbs.db
 .aider*
+
+# ── STM32 CubeMX / firmware build artefacts ─────────────────────
+# (examples/stm32/**; complements *.o / build/ rules above)
+*.d
+*.su
+*.cyclo
+
+# Firmware images / link maps
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+*.list
+
+# CubeMX / CubeIDE generator output
+Debug/
+Release/
+
+# STM32CubeIDE / Eclipse project files (if opened in IDE later)
+.settings/
+.project
+.cproject
+*.launch
+
+# CubeMX local backup (regenerated on save)
+*.ioc.bak
