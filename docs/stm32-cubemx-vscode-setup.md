@@ -112,6 +112,40 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 
 設 GPIO 時可在下方 **GPIO** 設定頁改：初始電平、上/下拉、輸出速度、**User Label**（給腳位取名，例如 `F6222_CSB`，產生的程式碼會用這名字當 `#define`，超好用）。
 
+**GPIO MUX 選擇線（6-bit）建議腳位：`PE7`–`PE12`**
+
+MUX 用 GPIO 輸出選通道（見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 `gpio_set_mux`）。推薦這連續 6 隻：
+
+| 腳 | 建議 User Label | MUX bit |
+|----|-----------------|---------|
+| PE7 | `MUX_SEL0` | bit0 |
+| PE8 | `MUX_SEL1` | bit1 |
+| PE9 | `MUX_SEL2` | bit2 |
+| PE10 | `MUX_SEL3` | bit3 |
+| PE11 | `MUX_SEL4` | bit4 |
+| PE12 | `MUX_SEL5` | bit5 |
+
+**選這 6 隻的理由**：
+
+1. **全在同一 port（GPIOE）** → 一次寫一個暫存器設完 6 隻，不用跨 port。
+2. **bit 位置連續（7~12）** → MUX 值直接映射，一行寫完（見下方 code）。
+3. **不撞現有腳** — 避開 SWD(PA13/14)、HSE(PH0/1)、SPI1(PA5/PA6/PB5)、USART3(PB10/11)。
+4. **非啟動/振盪腳** — 不碰 BOOT0、PC13-15（RTC 弱驅動）。
+5. **LQFP144 上實體相鄰** → PCB 走線好拉。
+
+在 CubeMX 逐一點 PE7~PE12 設 `GPIO_Output`，User Label 依上表命名。設定 GPIO 值的程式碼（寫在 `USER CODE` 區塊）：
+
+```c
+// 設 6-bit MUX 值 (0–63)，PE7 對應 bit0
+// 讀改寫版（易懂）
+GPIOE->ODR = (GPIOE->ODR & ~(0x3Fu << 7)) | ((uint32_t)(mux & 0x3F) << 7);
+
+// 原子版（BSRR，不需先讀，不會被中斷打斷）
+GPIOE->BSRR = ((uint32_t)(~mux & 0x3F) << (7 + 16)) | ((uint32_t)(mux & 0x3F) << 7);
+```
+
+> MUX 若不需 6-bit，砍尾巴即可。例如 4-bit（16 通道）只用 PE7~PE10，把 mask `0x3F` 改 `0x0F`。
+
 ### 2.5 Clock Configuration（時脈樹）
 
 上方分頁 **Clock Configuration**。
@@ -329,6 +363,7 @@ make clean && compiledb make -j
 | SPI1 | Master, PA5=SCK / PA6=MISO / PB5=MOSI, 8-bit |
 | USART3 | Async；範本 PD8=TX / PD9=RX（新版預設 PB10/PB11，依板子接線改）|
 | GPIO Out | PB0, PB7, PB14, PD14(初始高) |
+| GPIO MUX (建議) | PE7–PE12（6-bit，連續 bit 7~12，同 port GPIOE）|
 | Clock | HSE Crystal，SYSCLK 64 MHz（未拉 PLL）|
 | CLT 路徑 | `/opt/st/stm32cubeclt_1.21.0/GNU-tools-for-STM32/bin` |
 | 燒錄 | OpenOCD + ST-Link，`target/stm32h7x.cfg` |
