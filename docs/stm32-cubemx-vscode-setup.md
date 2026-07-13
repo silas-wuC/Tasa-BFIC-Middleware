@@ -64,13 +64,15 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 
 > 範本用 HSE Crystal，但 Clock Configuration 沒拉倍頻，SYSCLK 停在 64 MHz（見 §2.5）。
 
-### 2.3 除錯介面（SYS）—— 必做，否則燒一次就鎖死
+### 2.3 除錯介面（Debug/SWD）—— 必做，否則燒一次就鎖死
 
-左側 **System Core → SYS**：
+> ⚠️ CubeMX **6.17** 起，Debug 從 SYS 移到獨立分類 **`Trace and Debug`**（舊版教學寫在 SYS → Debug，新版找不到，別找錯）。
 
-- **Debug** → 選 **Serial Wire**（SWD）。
-  - 設定 `PA13 = SWDIO`、`PA14 = SWCLK`。
-- **Timebase Source** → 保留 **SysTick**。
+1. 左側 **Trace and Debug** 分類 → 展開 → 點 **DEBUG**。
+2. **Mode** 下拉 → 選 **`Serial Wire`**（SWD）。
+3. 自動配腳 `PA13 = SWDIO`、`PA14 = SWCLK`。
+
+**Timebase Source** 仍在 **System Core → SYS**，保留 **SysTick** 即可（該頁會顯示 `Warning: This peripheral has no parameters to be configured`，正常）。
 
 > ⚠️ 若不開 SWD，第一次燒錄後 ST-Link 可能無法再連上晶片（要靠拉 BOOT0 或 connect-under-reset 救）。新手務必開 Serial Wire。
 
