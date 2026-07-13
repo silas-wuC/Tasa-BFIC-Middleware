@@ -116,14 +116,14 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 
 MUX 用 GPIO 輸出選通道（見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 `gpio_set_mux`）。推薦這連續 6 隻，**在 NUCLEO-H743ZI2 上全部落在同一個 Zio 接頭 CN10**：
 
-| STM32 腳 | 建議 User Label | MUX bit | **CN10 針腳** | 該腳預設功能(參考) |
-|---------|-----------------|---------|--------------|------------------|
-| PE7 | `MUX_SEL0` | bit0 | **pin 16** | TIM1_ETR |
-| PE8 | `MUX_SEL1` | bit1 | **pin 18** | TIM1_CH1N |
-| PE9 | `MUX_SEL2` | bit2 | **pin 22** | TIM1_CH1 |
-| PE10 | `MUX_SEL3` | bit3 | **pin 20** | TIM1_CH2N |
-| PE11 | `MUX_SEL4` | bit4 | **pin 24** | TIM1_CH2 |
-| PE12 | `MUX_SEL5` | bit5 | **pin 26** | TIM1_CH3N |
+| STM32 腳 | 建議 User Label | MUX bit | **真腳** | 該腳預設功能(參考) |
+|---------|-----------------|---------|---------|------------------|
+| PE7 | `MUX_SEL0` | bit0 | **CN10 pin16** | TIM1_ETR |
+| PE8 | `MUX_SEL1` | bit1 | **CN10 pin18** | TIM1_CH1N |
+| PE9 | `MUX_SEL2` | bit2 | **CN10 pin22** | TIM1_CH1 |
+| PE10 | `MUX_SEL3` | bit3 | **CN10 pin20** | TIM1_CH2N |
+| PE11 | `MUX_SEL4` | bit4 | **CN10 pin24** | TIM1_CH2 |
+| PE12 | `MUX_SEL5` | bit5 | **CN10 pin26** | TIM1_CH3N |
 
 > 針腳位置查自 ST **UM2407**（NUCLEO-H743ZI2 User Manual）Table 21 CN10 Zio Connector。CN10 是板子上的 ST Zio 接頭之一（Arduino 相容擴充腳）。
 >
