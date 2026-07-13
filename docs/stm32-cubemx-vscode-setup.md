@@ -112,6 +112,20 @@ CubeMX 和 CubeCLT 從 ST 官網下載（需註冊帳號）。CLT 是「CubeMX t
 
 設 GPIO 時可在下方 **GPIO** 設定頁改：初始電平、上/下拉、輸出速度、**User Label**（給腳位取名，例如 `F6222_CSB`，產生的程式碼會用這名字當 `#define`，超好用）。
 
+**NUCLEO-H743ZI2 板載 3 顆 User LED（固定腳位，直接設 GPIO_Output）**
+
+板上已焊 3 顆 user LED，接線固定（不能改腳），CubeMX 直接在晶片圖點這 3 隻設 `GPIO_Output` 即可：
+
+| LED | 顏色 | STM32 腳 | 建議 User Label | 備註 |
+|-----|------|---------|-----------------|------|
+| LD1 | 綠 (Green) | PB0 | `LED_GREEN` | 高電平亮（active-high）|
+| LD2 | 黃 (Yellow) | PE1 | `LED_YELLOW` | 高電平亮 |
+| LD3 | 紅 (Red) | PB14 | `LED_RED` | 高電平亮 |
+
+> 3 顆都是 **active-high**：`GPIO_PIN_SET` 亮、`GPIO_PIN_RESET` 滅。初始電平設 `Reset`（開機不亮）即可。
+>
+> 腳位查自 ST **UM2407**（NUCLEO-H743ZI2 User Manual）§6.5 LEDs。⚠️ PB0（LD1）與範本 GPIO 表的 PB0 用途衝突——實際用板載 LED 時，這隻歸 LD1，別再拿去當其他 CSB/GPIO 用。PB14（LD3）同理與範本 PB14 衝突，擇一使用。
+
 **GPIO MUX 選擇線（6-bit）建議腳位：`PE7`–`PE12`**
 
 MUX 用 GPIO 輸出選通道（見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 `gpio_set_mux`）。推薦這連續 6 隻，**在 NUCLEO-H743ZI2 上全部落在同一個 Zio 接頭 CN10**：
