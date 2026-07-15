@@ -1,23 +1,23 @@
 # F6222 與 Middleware 串接指南
 
-本文件說明 RENESAS-F6222-Driver 如何透過 Tasa-BFIC-Middleware 串到 FPGA / BFIC，含每層職責、資料流、實作步驟、常見錯誤排查。
+說白了就是講清楚 RENESAS-F6222-Driver 怎麼靠 Tasa-BFIC-Middleware 這層膠水串到 FPGA / BFIC 上,每層誰幹啥、數據咋流、怎麼動手接、出了錯去哪兒查——都在這兒了,給老子看仔細了。
 
-> 註：driver 名稱為 **F6222**（third_party/RENESAS-F6222-Driver），非 F6522。
-
----
-
-## 1. 為什麼需要中介層
-
-F6222 driver 本身只知道「呼叫 `dev->spi_xfer` 送 SPI 封包」，不知道：
-
-- 要送去哪顆 BFIC（板上可能有多顆，經 FPGA MUX 選路）
-- 板子實際 GPIO / SPI 腳位怎麼接
-
-Middleware 的工作就是在 driver 呼叫 `spi_xfer` 那一刻，插入「先切 GPIO 選路，再送 SPI」的邏輯，driver 完全不用改。
+> 聽好了:driver 名字叫 **F6222**(third_party/RENESAS-F6222-Driver),不是 F6522,別特麼看錯,看錯了自己debug到崩潰別怪別人。
 
 ---
 
-## 2. 分層與檔案對應
+## 1. 為啥要搞個中介層
+
+F6222 driver 這貨自己就一根筋,只知道「呼叫 `dev->spi_xfer` 甩個 SPI 封包出去」,別的啥都不知道,傻乎乎的:
+
+- 這包要送去哪顆 BFIC 它不知道(板上可能焊了好幾顆,得靠 FPGA MUX 選路)
+- 板子上 GPIO / SPI 腳位到底咋接的它也不知道
+
+Middleware 幹的活兒就是在 driver 調用 `spi_xfer` 那一瞬間,偷偷塞進去一句「先切 GPIO 選路,再送 SPI」的邏輯,driver 那邊代碼一行都不用動,這波操作屬實牛逼。
+
+---
+
+## 2. 分層跟檔案對應關係
 
 ```
 應用程式
@@ -45,9 +45,9 @@ FPGA → 目標 BFIC
 
 ---
 
-## 3. 關鍵資料結構
+## 3. 關鍵數據結構
 
-### 3.1 F6222 driver 端（third_party，不要改）
+### 3.1 F6222 driver 那端(third_party 的東西,別手賤去改,改了出事自己扛)
 
 ```c
 typedef struct {
@@ -56,9 +56,9 @@ typedef struct {
 } f6222_dev_t;
 ```
 
-driver 內部所有暫存器讀寫（`f6222_local_reg_write`、`f6222_local_reg_read`…）最終都會走 `dev->spi_xfer(dev->ctx, tx, rx, len)`。
+driver 內部所有暫存器讀寫(`f6222_local_reg_write`、`f6222_local_reg_read`……這些)兜兜轉轉最後都得走 `dev->spi_xfer(dev->ctx, tx, rx, len)` 這一條道,躲都躲不掉。
 
-### 3.2 Middleware 送信管道
+### 3.2 Middleware 的送信管道
 
 ```c
 typedef struct {
@@ -68,7 +68,7 @@ typedef struct {
 } tasa_fpga_dev_t;
 ```
 
-### 3.3 Bridge（膠水層）
+### 3.3 Bridge(純粹就是個膠水層,沒啥花活)
 
 ```c
 typedef struct {
@@ -77,14 +77,14 @@ typedef struct {
 } tasa_bfic_bridge_t;
 ```
 
-`tasa_bfic_bridge_init()` 做的事只有兩行：
+`tasa_bfic_bridge_init()` 幹的事兒就兩行,簡單粗暴,別想太多:
 
 ```c
 dev->spi_xfer = tasa_bfic_bridge_spi_xfer;  /* 蓋掉 driver 原本空的 spi_xfer */
 dev->ctx      = bridge;                     /* driver 呼叫時第一參數變成 bridge 指標 */
 ```
 
-之後 driver 每次呼叫 `dev->spi_xfer(dev->ctx, tx, rx, len)`，實際執行的是：
+這麼一改,之後 driver 每次調 `dev->spi_xfer(dev->ctx, tx, rx, len)`,背地裡實際跑的其實是這一坨:
 
 ```c
 tasa_bfic_bridge_spi_xfer(bridge, tx, rx, len)
@@ -95,11 +95,11 @@ tasa_bfic_bridge_spi_xfer(bridge, tx, rx, len)
 
 ---
 
-## 4. 串接步驟（你要做的事）
+## 4. 串接步驟(輪到你上場幹活了,別磨磨唧唧)
 
 ### Step 1 — 實作板級 HAL
 
-只需兩個函式，簽名固定，內容依平台不同：
+就兩個函式,簽名釘死了不能改,內容看你平台自己寫,別瞎改簽名不然全套接口都得跟著崩:
 
 ```c
 /* 切 6 根 GPIO，決定這次 SPI 打到哪顆 BFIC / 哪個 tile */
@@ -144,17 +144,17 @@ if (rc != TASA_OK) {
 }
 ```
 
-### Step 4 — 照常呼叫 F6222 API
+### Step 4 — 照常呼叫 F6222 API,別自己整活加東西
 
 ```c
 f6222_status_t st = f6222_init(&dev, chip_addr);  /* chip_addr 對應硬體 ADD[4:0]，與路線無關 */
 ```
 
-`f6222_init()` 內部跑 76 次暫存器寫入 + ready/scratch test，每一次都自動經過 bridge → link → 板級 HAL → FPGA → 目標 BFIC，呼叫端完全無感。
+`f6222_init()` 內部跑 76 次暫存器寫入 + ready/scratch test,每一次都自動經過 bridge → link → 板級 HAL → FPGA → 目標 BFIC,呼叫端完全無感,爽的就是這點——你根本不用操心底層那攤事兒。
 
 ---
 
-## 5. Mode（路線）選擇
+## 5. Mode(路線)選擇,選錯了打到別的BFIC別怪middleware
 
 `tasa_bfic_mux_mode_t`（`include/tasa_bfic_mode.h`）決定這次 SPI 打到哪裡，6-bit GPIO 欄位：
 
@@ -176,7 +176,7 @@ f6222_status_t st = f6222_init(&dev, chip_addr);  /* chip_addr 對應硬體 ADD[
 - `tasa_bfic_mode_valid_for_dir(mode, dir)`：檢查 mode 對 TX/RX 方向是否合法（BF9 系列為 TX-only，`TASA_BFIC_MODE_FPGA_INTERNAL` 不可做資料傳輸）
 - `tasa_bfic_mode_name(mode)`：debug 用，回傳可讀字串
 
-**換顆 BFIC**：每顆配一個獨立 `tasa_bfic_bridge_t`，或對同一個 bridge 重新呼叫 `tasa_bfic_bridge_init()` 換 mode。driver 端程式碼不用動。
+**換顆 BFIC**:每顆配一個獨立 `tasa_bfic_bridge_t`,或對同一個 bridge 重新呼叫 `tasa_bfic_bridge_init()` 換 mode。driver 端程式碼一行都不用動,省心。
 
 ---
 
@@ -206,18 +206,18 @@ f6222_status_t st = f6222_init(&dev, chip_addr);  /* chip_addr 對應硬體 ADD[
 | `TASA_ERR_GPIO` (-2 對應來源) | `gpio_set_mux` 回傳負值 | 板級 HAL GPIO 操作失敗 |
 | `TASA_ERR_SPI` | `spi_xfer` 回傳負值 | 板級 HAL SPI 傳輸失敗（如 HAL_SPI_TransmitReceive timeout） |
 
-`f6222_status_t`（driver 端，`f6222.h`）額外處理 silicon ID 不符、scratch pattern 不符、ready timeout 等 protocol 層錯誤，與 middleware 層是分開的兩組錯誤碼，出錯時要分別檢查。
+`f6222_status_t`(driver 端,`f6222.h`)額外處理 silicon ID 不符、scratch pattern 不符、ready timeout 等 protocol 層錯誤,跟 middleware 層是分開的兩組錯誤碼,出錯時兩邊都得查,別偷懶只看一邊就下結論。
 
 ---
 
-## 8. 常見誤解
+## 8. 常見誤解(踩坑重災區,看仔細了)
 
 | 誤解 | 正解 |
 |---|---|
 | SPI 要經 middleware，所以要把 f6222 函式搬進 middleware | 不用，只接 `spi_xfer` 這一個管道，組包邏輯留在 F6222 driver |
 | 每顆 BFIC 要各自改一份 driver | 不用改 driver，只要換 `mode` 或多開一個 `bridge` |
 | Middleware 沒做完不能用 | Phase 1（MUX passthrough）已完成，缺的只是板級 `gpio_set_mux` / `spi_xfer` 實作 |
-| `chip_addr` 跟 `mode` 是同一件事 | 不是。`mode` 決定 FPGA MUX 路線（走哪個 SPI 通道），`chip_addr` 是 BFIC 硬體位址（ADD[4:0]），兩者都要對，缺一不可 |
+| `chip_addr` 跟 `mode` 是同一件事 | 不是,別搞混了。`mode` 決定 FPGA MUX 路線(走哪個 SPI 通道),`chip_addr` 是 BFIC 硬體位址(ADD[4:0]),兩者都要對,缺一不可,搞錯一個就等著抓瞎 |
 
 ---
 
