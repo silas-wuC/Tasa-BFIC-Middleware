@@ -47,6 +47,7 @@ void MX_GPIO_Init(void) {
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, LED_GREEN_Pin | LED_RED_Pin, GPIO_PIN_RESET);
@@ -57,7 +58,11 @@ void MX_GPIO_Init(void) {
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(SPI1_CSB_GPIO_Port, SPI1_CSB_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOD, SPI1_CSB_Pin | AIP1_4_Common6_PD2_Pin | AIP1_4_Common5_PD3_Pin | AIP1_4_Common4_PD4_Pin,
+                      GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOC, AIP1_4_Common3_PC7_Pin | AIP1_4_Common2_PC8_Pin | AIP1_4_Common1_PC9_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : LED_GREEN_Pin LED_RED_Pin */
     GPIO_InitStruct.Pin = LED_GREEN_Pin | LED_RED_Pin;
@@ -75,12 +80,19 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : SPI1_CSB_Pin */
-    GPIO_InitStruct.Pin = SPI1_CSB_Pin;
+    /*Configure GPIO pins : SPI1_CSB_Pin AIP1_4_Common6_PD2_Pin AIP1_4_Common5_PD3_Pin AIP1_4_Common4_PD4_Pin */
+    GPIO_InitStruct.Pin = SPI1_CSB_Pin | AIP1_4_Common6_PD2_Pin | AIP1_4_Common5_PD3_Pin | AIP1_4_Common4_PD4_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(SPI1_CSB_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : AIP1_4_Common3_PC7_Pin AIP1_4_Common2_PC8_Pin AIP1_4_Common1_PC9_Pin */
+    GPIO_InitStruct.Pin = AIP1_4_Common3_PC7_Pin | AIP1_4_Common2_PC8_Pin | AIP1_4_Common1_PC9_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 2 */

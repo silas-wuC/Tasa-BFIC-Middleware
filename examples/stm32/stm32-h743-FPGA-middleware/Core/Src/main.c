@@ -19,8 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-#include <stdio.h>
-
 #include "gpio.h"
 #include "spi.h"
 #include "usart.h"

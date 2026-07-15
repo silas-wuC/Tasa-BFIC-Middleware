@@ -75,6 +75,18 @@ void Error_Handler(void);
 #define LED_RED_GPIO_Port GPIOB
 #define SPI1_CSB_Pin GPIO_PIN_14
 #define SPI1_CSB_GPIO_Port GPIOD
+#define AIP1_4_Common3_PC7_Pin GPIO_PIN_7
+#define AIP1_4_Common3_PC7_GPIO_Port GPIOC
+#define AIP1_4_Common2_PC8_Pin GPIO_PIN_8
+#define AIP1_4_Common2_PC8_GPIO_Port GPIOC
+#define AIP1_4_Common1_PC9_Pin GPIO_PIN_9
+#define AIP1_4_Common1_PC9_GPIO_Port GPIOC
+#define AIP1_4_Common6_PD2_Pin GPIO_PIN_2
+#define AIP1_4_Common6_PD2_GPIO_Port GPIOD
+#define AIP1_4_Common5_PD3_Pin GPIO_PIN_3
+#define AIP1_4_Common5_PD3_GPIO_Port GPIOD
+#define AIP1_4_Common4_PD4_Pin GPIO_PIN_4
+#define AIP1_4_Common4_PD4_GPIO_Port GPIOD
 #define LED_YELLOW_Pin GPIO_PIN_1
 #define LED_YELLOW_GPIO_Port GPIOE
 
