@@ -19,6 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+#include <stdio.h>
+
 #include "gpio.h"
 #include "spi.h"
 #include "usart.h"
@@ -67,6 +69,12 @@ static void MPU_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+int __io_putchar(int ch) {
+    uint8_t c = (uint8_t)ch;
+    HAL_UART_Transmit(&huart3, &c, 1, HAL_MAX_DELAY);
+    return ch;
+}
+
 /*
  * Cool LED effect: software-PWM "flowing rainbow wave".
  *
@@ -103,7 +111,7 @@ static const uint8_t kSineLut[256] = {
 #define PHASE_OFFSET 85u
 
 typedef struct {
-    GPIO_TypeDef *port;
+    GPIO_TypeDef* port;
     uint16_t pin;
     uint8_t phase; /* starting offset into the sine LUT */
 } led_channel_t;
@@ -194,9 +202,11 @@ int main(void) {
     if (tasa_bfic_bridge_init(&bfic_bridge, &f6222_dev, &fpga_link, TASA_BFIC_MODE_AIP_BROADCAST) != TASA_OK) {
         Error_Handler();
     }
+    printf("tasa_bfic_bridge_init succ\r\n");
     if (f6222_init_global(&f6222_dev) != F6222_OK) {
         Error_Handler();
     }
+    printf("f6222_init_global succ\r\n");
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -317,7 +327,7 @@ void Error_Handler(void) {
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line) {
+void assert_failed(uint8_t* file, uint32_t line) {
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
        ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
