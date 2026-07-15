@@ -25,7 +25,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "f6222.h"
+#include "tasa_bfic_bridge.h"
+#include "tasa_board_hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +48,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+static tasa_fpga_dev_t fpga_link = {
+    .gpio_set_mux = board_gpio_set_mux,
+    .spi_xfer = board_spi_xfer,
+    .ctx = &hspi1,
+};
+static tasa_bfic_bridge_t bfic_bridge;
+static f6222_dev_t f6222_dev;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -183,7 +191,12 @@ int main(void) {
     MX_SPI1_Init();
     MX_USART3_UART_Init();
     /* USER CODE BEGIN 2 */
-
+    if (tasa_bfic_bridge_init(&bfic_bridge, &f6222_dev, &fpga_link, TASA_BFIC_MODE_AIP_BROADCAST) != TASA_OK) {
+        Error_Handler();
+    }
+    if (f6222_init_global(&f6222_dev) != F6222_OK) {
+        Error_Handler();
+    }
     /* USER CODE END 2 */
 
     /* Infinite loop */
