@@ -199,7 +199,7 @@ int main(void) {
     MX_SPI1_Init();
     MX_USART3_UART_Init();
     /* USER CODE BEGIN 2 */
-    if (tasa_bfic_bridge_init(&bfic_bridge, &f6222_dev, &fpga_link, TASA_BFIC_MODE_AIP_BROADCAST) != TASA_OK) {
+    if (tasa_bfic_bridge_init(&bfic_bridge, &f6222_dev, &fpga_link, TASA_BFIC_MODE_FPGA_INTERNAL) != TASA_OK) {
         Error_Handler();
     }
     printf("tasa_bfic_bridge_init succ\r\n");
