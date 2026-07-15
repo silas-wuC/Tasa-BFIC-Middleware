@@ -85,7 +85,8 @@ CubeMX 和 CubeCLT 從 ST 官網下載(需註冊帳號,麻煩但躲不掉)。CLT
 左側 **Connectivity → SPI1**:
 
 - **Mode** → `Full-Duplex Master`。
-- 自動配腳:`PA5 = SPI1_SCK`、`PA6 = SPI1_MISO`、`PA7 = SPI1_MOSI`（本 repo 範本 `stm32-h743-FPGA-middleware`；F6222 demo 若用 PB5 見下方 CN7 表 SB 說明）。
+- CubeMX 自動配腳通常是 `PA5 = SPI1_SCK`、`PA6 = SPI1_MISO`、`PA7 = SPI1_MOSI`——**這只是 MCU 邏輯腳名，不等於 Nucleo 接頭 D11 一定接到 PA7**（見下方 §「SB33 / SB35 與 MOSI 的關係」）。
+- **NUCLEO-H743ZI2 實務建議**：先看板背 SB33/SB35，再決定 CubeMX 的 MOSI 要配 **PA7 還是 PB5**；多數板子（SB33 OFF、SB35 ON）應配 **PB5**（與 `RENESAS-F6222-Driver` demo 相同）。
 - Parameter Settings:
   - `Data Size` = 8 Bits
   - `Prescaler` 調到你要的鮑率(範本 `/128` → ≈1 MBit/s,因為 SYSCLK 只有 64 MHz)
@@ -96,17 +97,65 @@ CubeMX 和 CubeCLT 從 ST 官網下載(需註冊帳號,麻煩但躲不掉)。CLT
 
 SPI1 四線全在 **CN7**（ST Zio，Arduino Uno V3 數位腳 D10–D13 那一排）。對照 ST **UM2407** Table 18：
 
-| STM32 腳 | Arduino 名 | 訊號 | **CN7 針腳** | 備註 |
-|---------|-----------|------|-------------|------|
-| PA5 | D13 | SPI1_SCK | **pin 10** | — |
-| PA6 | D12 | SPI1_MISO | **pin 12** | — |
-| PA7 | D11 | SPI1_MOSI | **pin 14** | 須 **SB33 OFF、SB35 ON**（D11 接 PA7） |
-| PB5 | D11 | SPI1_MOSI（替代） | **pin 14** | 出廠預設 **SB33 ON、SB35 OFF**（D11 接 PB5）；F6222 demo 用此配置 |
-| PD14 | D10 | SPI1_CSB（軟體片選） | **pin 16** | GPIO_Output，非 SPI 硬體 NSS |
+| STM32 腳 | Arduino 名 | 訊號 | **CN7 針腳** | 經 SB33/SB35？ |
+|---------|-----------|------|-------------|----------------|
+| PA5 | D13 | SPI1_SCK | **pin 10** | 否（固定） |
+| PA6 | D12 | SPI1_MISO | **pin 12** | 否（固定） |
+| PA7 或 PB5 | D11 | SPI1_MOSI | **pin 14** | **是（二選一）** |
+| PD14 | D10 | SPI1_CSB（軟體片選） | **pin 16** | 否（GPIO 固定） |
 
-> 針腳查自 UM2407 Table 18（CN7 Zio connector pinout）。**MOSI 同一物理針 CN7 pin 14**，PA7 與 PB5 二選一，靠板背 SB33/SB35 跳線決定，焊對腳名但 SB 不對 MOSI 照樣啞火。
->
 > GND 可取 CN7 **pin 8**（或同排任一 GND）。3.3 V 邏輯，勿當 5 V tolerance 用。
+
+#### SB33 / SB35 與 MOSI 的關係（必讀，踩坑率極高）
+
+**SB33、SB35 是 NUCLEO-H743ZI2 板上的焊橋（Solder Bridge）**，在 PCB 上（通常在板背或板面，標 `SB33` / `SB35` 的小焊盤）。它們決定 **CN7 pin 14（Arduino D11）這一根物理針，到底接到 MCU 的 PA7 還是 PB5**。
+
+| 焊橋狀態 | 意思 |
+|---------|------|
+| **ON（接通）** | 兩焊盤之間有焊錫，線路導通 |
+| **OFF（懸空/斷開）** | 兩焊盤未連接，該路徑斷開 |
+
+**ST 官方對照（UM2407 Table 14，NUCLEO-H743ZI2 / MB1364）**：
+
+| SB33 | SB35 | D11（CN7 pin 14）接到 MCU | CubeMX 應配 MOSI |
+|------|------|---------------------------|------------------|
+| **OFF** | **ON** | **PB5** | **PB5** |
+| **ON** | **OFF** | **PA7** | **PA7** |
+
+> ⚠️ **兩者不可同時 ON**，否則 PA7 與 PB5 可能短路。
+
+**三層對應關係（搞懂就不會再量錯 MOSI）**：
+
+```
+韌體/CubeMX 設定的 MOSI 腳  ←必須一致→  板子 SB 選的路  ←必須一致→  示波器/杜邦線接的 CN7 針
+     PA7 或 PB5                          PA7 或 PB5                         pin 14 (D11)
+```
+
+- **SCK（PA5）、MISO（PA6）、CSB（PD14）** 不經 SB33/SB35，所以「CLK/CSB 有波形、MOSI 沒有」幾乎一定是 **MOSI 腳名與 SB 配置不一致**。
+- **CubeMX 預設 PA7** 只代表「SPI1 邏輯上用 PA7 當 MOSI」；若板子 SB 實際走 PB5，你在 D11 上永遠量不到 MOSI，但 F6222 demo（配 PB5）反而正常——這是實測常見現象，不是 HAL 壞掉。
+
+**操作步驟（建議照做）**：
+
+1. **停電**，用放大鏡看 Nucleo 板上 **SB33、SB35** 是否有焊錫連通。
+2. 依上表查出 D11 接 **PA7 還是 PB5**。
+3. 回 CubeMX Pinout：在晶片圖上把 SPI1_MOSI 設成**同一顆腳**（PA7 或 PB5），`GENERATE CODE`。
+4. 用示波器量 **CN7 pin 14**，在 SPI 傳輸 command byte 時段看 MOSI（全 0x00 padding 時線可能一直低，別誤判成「沒輸出」）。
+
+**本 repo 參考**：
+
+| 專案 | MOSI 腳 | 適用的 SB 配置 |
+|------|---------|----------------|
+| `RENESAS-F6222-Driver/examples/stm32/f6222-spi-demo` | **PB5** | SB33 OFF、SB35 ON |
+| `examples/stm32/stm32-h743-FPGA-middleware`（範本） | 目前 **PA7**（CubeMX 預設） | 僅適用 SB33 ON、SB35 OFF；若板子是 SB33 OFF / SB35 ON，請改 CubeMX 為 **PB5** |
+
+**接線示意（MOSI 這一段）**：
+
+```
+STM32 PA7 ──[SB33]──┐
+                    ├──► CN7 pin 14 (D11) ──► 你的 SPI slave MOSI
+STM32 PB5 ──[SB35]──┘
+         （同一時間只有一條路通）
+```
 
 **SPI 片選 CSB(軟體 GPIO,必設)**
 
@@ -178,7 +227,7 @@ MUX 用 GPIO 輸出選通道(見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 
 
 1. **全在同一 port(GPIOE)** → 一次寫一個暫存器設完 6 隻,不用跨 port瞎折騰。
 2. **bit 位置連續(7~12)** → MUX 值直接映射,一行寫完(見下方 code)。
-3. **不撞現有腳** — 避開 SWD(PA13/14)、HSE(PH0/1)、SPI1(PA5/PA6/PA7 或 PB5、PD14)、USART3(PB10/11)。
+3. **不撞現有腳** — 避開 SWD(PA13/14)、HSE(PH0/1)、SPI1(PA5/PA6 + MOSI 的 PA7 或 PB5、PD14)、USART3(PB10/11)。
 4. **非啟動/振盪腳** — 不碰 BOOT0、PC13-15(RTC 弱驅動),碰了容易出詭異bug。
 5. **LQFP144 上實體相鄰** → PCB 走線好拉,佈線的兄弟會感謝你。
 
@@ -409,7 +458,8 @@ make clean && compiledb make -j
 | MCU / 封裝 | STM32H743ZITx / LQFP144 |
 | Toolchain | Makefile |
 | Debug | Serial Wire（PA13/PA14）|
-| SPI1 | Master, PA5=SCK / PA6=MISO / PA7=MOSI（或 PB5=MOSI）, 8-bit, NSS=Software；CN7：**pin10** SCK / **pin12** MISO / **pin14** MOSI |
+| SPI1 | Master, PA5=SCK / PA6=MISO / MOSI=**PA7 或 PB5**（須與 SB33/SB35 一致，見 §2.4）, 8-bit, NSS=Software；CN7：**pin10** SCK / **pin12** MISO / **pin14** MOSI（D11） |
+| SB33/SB35 | OFF+ON→PB5；ON+OFF→PA7（UM2407 Table 14）。CLK/CSB 不受 SB 影響 |
 | SPI CSB | **PD14**（GPIO_Output,User Label `SPI1_CSB` 或 `F6222_CSB`,初始高=未選中）；CN7 **pin 16**（D10）|
 | USART3 | Async；範本 PD8=TX / PD9=RX（新版預設 PB10/PB11，依板子接線改）|
 | GPIO Out | PB0, PB7, PB14 |
