@@ -73,6 +73,8 @@ void Error_Handler(void);
 #define MUX_SEL5_GPIO_Port GPIOE
 #define LED_RED_Pin GPIO_PIN_14
 #define LED_RED_GPIO_Port GPIOB
+#define SPI1_CSB_Pin GPIO_PIN_14
+#define SPI1_CSB_GPIO_Port GPIOD
 #define LED_YELLOW_Pin GPIO_PIN_1
 #define LED_YELLOW_GPIO_Port GPIOE
 
