@@ -90,6 +90,19 @@ CubeMX 和 CubeCLT 從 ST 官網下載(需註冊帳號,麻煩但躲不掉)。CLT
   - `Data Size` = 8 Bits
   - `Prescaler` 調到你要的鮑率(範本 `/128` → ≈1 MBit/s,因為 SYSCLK 只有 64 MHz)
   - CPOL/CPHA 依 slave 需求設(F6222 上升沿採樣 → Mode 0)
+  - `NSS` → **`Software NSS`**(片選不由 SPI 硬體管,改由 GPIO 手動拉)
+
+**SPI 片選 CSB(軟體 GPIO,必設)**
+
+SPI1 用 `SPI_NSS_SOFT`,**CSB 不接 SPI 硬體 NSS 腳**,須另設一隻 GPIO 當片選:
+
+1. 右邊晶片圖點 **`PD14`** → 選 **`GPIO_Output`**。
+2. 下方 **GPIO** 設定頁:
+   - `GPIO output level` = **`High`**(開機 CS 釋放,不選中)
+   - **User Label** = `F6222_CSB`(或 `SPI_CSB`,產生 `#define` 供程式用)
+3. 傳輸時軟體拉低 CSB → `HAL_SPI_TransmitReceive()` → 拉高 CSB(見 `f6222_spi_stm32.c`)。
+
+> 範本固定 **PD14 = SPI CSB**。板子若接別腳,改 GPIO 即可,SPI SCK/MISO/MOSI 不動。
 
 **USART3(printf / log 用)**
 
@@ -108,7 +121,7 @@ CubeMX 和 CubeCLT 從 ST 官網下載(需註冊帳號,麻煩但躲不掉)。CLT
 | PB0 | GPIO_Output | — |
 | PB7 | GPIO_Output | — |
 | PB14 | GPIO_Output | — |
-| PD14 | GPIO_Output | 初始 `PinState = SET`（高電平開機）|
+| **PD14** | **SPI CSB(片選)** | `GPIO_Output`,User Label `F6222_CSB`;初始 `PinState = SET`(高電平=未選中) |
 
 設 GPIO 時可在下方 **GPIO** 設定頁改:初始電平、上/下拉、輸出速度、**User Label**(給腳位取名,例如 `F6222_CSB`,產生的程式碼會用這名字當 `#define`,這功能是真牛逼,一定要用)。
 
@@ -368,7 +381,7 @@ make clean && compiledb make -j
 這份 STM32 專案是 host 端。要把 F6222 driver 掛進來:
 
 - driver 的 SPI 底層在 `platform/stm32/src/f6222_spi_stm32.c`,它呼叫 HAL 的 `HAL_SPI_TransmitReceive()` 等。
-- 把 CubeMX 的 `hspi1` handle 傳給 driver 的初始化,CSB/RST/MODE 用 CubeMX 設的 GPIO 腳(記得在 CubeMX 給它們 User Label,別偷懶不然代碼裡看得一頭霧水)。
+- 把 CubeMX 的 `hspi1` handle 傳給 driver 的初始化,**CSB 用 PD14**(User Label `F6222_CSB`),RST/MODE 用其餘 GPIO 腳(記得在 CubeMX 給它們 User Label,別偷懶不然代碼裡看得一頭霧水)。
 - 詳細接法見 [f6222-integration-guide.md](f6222-integration-guide.md)、SPI 概念見 [stm32-spi-primer.md](stm32-spi-primer.md)。
 
 ---
@@ -380,9 +393,10 @@ make clean && compiledb make -j
 | MCU / 封裝 | STM32H743ZITx / LQFP144 |
 | Toolchain | Makefile |
 | Debug | Serial Wire（PA13/PA14）|
-| SPI1 | Master, PA5=SCK / PA6=MISO / PB5=MOSI, 8-bit |
+| SPI1 | Master, PA5=SCK / PA6=MISO / PB5=MOSI, 8-bit, NSS=Software |
+| SPI CSB | **PD14**（GPIO_Output,User Label `F6222_CSB`,初始高=未選中）|
 | USART3 | Async；範本 PD8=TX / PD9=RX（新版預設 PB10/PB11，依板子接線改）|
-| GPIO Out | PB0, PB7, PB14, PD14(初始高) |
+| GPIO Out | PB0, PB7, PB14 |
 | GPIO MUX (建議) | PE7–PE12（6-bit，bit 7~12，同 port GPIOE）；NUCLEO-H743ZI2 全在 CN10：PE7=p16 PE8=p18 PE9=p22 PE10=p20 PE11=p24 PE12=p26 |
 | Clock | HSE Crystal，SYSCLK 64 MHz（未拉 PLL）|
 | CLT 路徑 | `/opt/st/stm32cubeclt_1.21.0/GNU-tools-for-STM32/bin` |
