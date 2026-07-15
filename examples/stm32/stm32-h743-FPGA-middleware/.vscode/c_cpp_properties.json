@@ -3,6 +3,8 @@
     {
       "name": "STM32",
       "includePath": [
+        "../../../include",
+        "../../../third_party/RENESAS-F6222-Driver/include",
         "Core/Inc",
         "Drivers/CMSIS/Device/ST/STM32H7xx/Include",
         "Drivers/CMSIS/Include",
