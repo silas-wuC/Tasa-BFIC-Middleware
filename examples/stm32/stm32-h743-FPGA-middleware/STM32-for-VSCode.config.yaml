@@ -80,6 +80,8 @@ includeDirectories:
   - Src/**
   - Core/Src/**
   - Core/Lib/**
+  - ../../../include/**
+  - ../../../third_party/RENESAS-F6222-Driver/include/**
 
 
 # Files that should be included in the compilation.
@@ -91,6 +93,11 @@ sourceFiles:
   - Src/**
   - Core/Src/**
   - Core/Lib/**
+  - ../../../src/tasa_bfic_bridge.c
+  - ../../../src/tasa_fpga_link.c
+  - ../../../src/tasa_bfic_mode.c
+  - ../../../third_party/RENESAS-F6222-Driver/src/f6222_init.c
+  - ../../../third_party/RENESAS-F6222-Driver/src/f6222_spi.c
 
 
 # When no makefile is present it will show a warning pop-up.

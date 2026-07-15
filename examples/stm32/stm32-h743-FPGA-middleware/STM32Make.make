@@ -78,12 +78,18 @@ C_SOURCES =  \
 Core/Src/gpio.c \
 Core/Src/main.c \
 Core/Src/spi.c \
+Core/Src/tasa_board_hal.c \
 Core/Src/stm32h7xx_hal_msp.c \
 Core/Src/stm32h7xx_it.c \
 Core/Src/syscalls.c \
 Core/Src/sysmem.c \
 Core/Src/system_stm32h7xx.c \
 Core/Src/usart.c \
+../../../src/tasa_bfic_bridge.c \
+../../../src/tasa_fpga_link.c \
+../../../src/tasa_bfic_mode.c \
+../../../third_party/RENESAS-F6222-Driver/src/f6222_init.c \
+../../../third_party/RENESAS-F6222-Driver/src/f6222_spi.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c \
@@ -201,6 +207,8 @@ AS_INCLUDES = \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
+-I../../../include \
+-I../../../third_party/RENESAS-F6222-Driver/include \
 -IDrivers/CMSIS/Device/ST/STM32H7xx/Include \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32H7xx_HAL_Driver/Inc \
