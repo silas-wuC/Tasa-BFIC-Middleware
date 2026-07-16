@@ -5,7 +5,7 @@ tasa_status_t tasa_fpga_mux_xfer(tasa_fpga_dev_t* dev, tasa_bfic_mux_mode_t mode
     if (dev == NULL || dev->gpio_set_mux == NULL || dev->spi_xfer == NULL || tx == NULL) {
         return TASA_ERR_INVALID_ARG;
     }
-    if (len == 0u || len > TASA_FPGA_MUX_MAX_DATA) {
+    if (len == 0u) {
         return TASA_ERR_INVALID_ARG;
     }
     if (!tasa_bfic_mode_is_valid(mode)) {
