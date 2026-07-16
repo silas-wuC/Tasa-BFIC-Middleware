@@ -46,6 +46,7 @@ Core/Src/stm32h7xx_hal_msp.c \
 ../../../src/tasa_bfic_bridge.c \
 ../../../src/tasa_fpga_link.c \
 ../../../src/tasa_bfic_mode.c \
+../../../src/tasa_fpga_ctrl.c \
 ../../../third_party/RENESAS-F6222-Driver/src/f6222_init.c \
 ../../../third_party/RENESAS-F6222-Driver/src/f6222_spi.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c \
