@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -326,6 +327,20 @@ tasa_status_t tasa_fpga_ctrl_read_beam_mode(tasa_fpga_dev_t* dev, uint8_t* mode)
  * @return     TASA_OK on success, negative tasa_status_t on error.
  */
 tasa_status_t tasa_fpga_ctrl_write_beam_mode(tasa_fpga_dev_t* dev, uint8_t mode);
+
+/**
+ * Query the Auto mode status bit (0x0D bit 3) to see if beam setting finished.
+ *
+ * Reads the Beam mode register and decodes bit 3. Note the inverted logic:
+ * bit 3 = 1 means busy, bit 3 = 0 means done, so *done is true when the bit
+ * is clear. Useful for non-blocking callers that poll on their own; the
+ * blocking tasa_fpga_ctrl_set_beam waits on this condition internally.
+ *
+ * @param dev  FPGA MUX link (same struct used by the passthrough path).
+ * @param done Output flag; set to true when the FPGA reports done (bit 3 = 0).
+ * @return     TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done);
 
 #ifdef __cplusplus
 }
