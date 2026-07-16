@@ -203,6 +203,28 @@ tasa_status_t tasa_fpga_ctrl_write_pol_id(tasa_fpga_dev_t* dev, const uint8_t po
 /** Beam ID byte count (32-bit, big-endian across 0x09..0x0C). */
 #define TASA_FPGA_CTRL_BEAM_ID_LEN 4u
 
+/**
+ * Read the 4-byte Beam ID over MUX mode 0x2F (System register block, R/W).
+ *
+ * Reads TASA_FPGA_CTRL_BEAM_ID_LEN bytes starting at TASA_FPGA_CTRL_BEAM_ID_ADDR
+ * via TASA_FPGA_REG_SYSTEM. Big-endian, MSB first:
+ *   beam_id[0] — [31:24] @0x09
+ *   beam_id[1] — [23:16] @0x0A
+ *   beam_id[2] — [15:8]  @0x0B
+ *   beam_id[3] — [7:0]   @0x0C
+ * The caller assembles the 32-bit scalar; this layer returns raw bytes, like
+ * tasa_fpga_ctrl_read_pol_id.
+ *
+ * Example decode:
+ *   id = ((uint32_t)beam_id[0] << 24) | ((uint32_t)beam_id[1] << 16) |
+ *        ((uint32_t)beam_id[2] << 8) | beam_id[3];
+ *
+ * @param dev     FPGA MUX link (same struct used by the passthrough path).
+ * @param beam_id Output buffer; must hold TASA_FPGA_CTRL_BEAM_ID_LEN bytes.
+ * @return        TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_read_beam_id(tasa_fpga_dev_t* dev, uint8_t beam_id[TASA_FPGA_CTRL_BEAM_ID_LEN]);
+
 #ifdef __cplusplus
 }
 #endif
