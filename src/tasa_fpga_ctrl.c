@@ -31,3 +31,7 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
     memcpy(data, &rx[3], count);
     return TASA_OK;
 }
+
+tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[4]) {
+    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, 0x00u, version, 4u);
+}
