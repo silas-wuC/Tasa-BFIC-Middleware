@@ -359,18 +359,23 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done);
  * the TX/RX (bit 0), Linear/Circular (bit 1) and Phase (bit 2) fields from the
  * arguments, then pulses Set Beam (bit 4). The trigger style follows
  * TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER (default level: write 1 and leave it).
- * Finally it polls Auto mode status (bit 3) up to TASA_FPGA_CTRL_BEAM_POLL_MAX
- * times, returning TASA_ERR_TIMEOUT if the FPGA never reports done.
+ * Finally it polls Auto mode status (bit 3) up to `poll_max` times, returning
+ * TASA_ERR_TIMEOUT if the FPGA never reports done. Each iteration is one
+ * register read; there is no delay primitive at this layer, so `poll_max`
+ * bounds SPI reads, not wall time. TASA_FPGA_CTRL_BEAM_POLL_MAX is provided as
+ * a sane default the caller may pass.
  *
- * @param dev   FPGA MUX link (same struct used by the passthrough path).
- * @param dir   TX/RX direction (tasa_bfic_dir_t: RX = 0, TX = 1).
- * @param polar Polarization mode (Circular / Linear).
- * @param phase RX-Linear phase selection (0 / 90).
- * @return      TASA_OK on success, TASA_ERR_TIMEOUT if done never asserts,
- *              or a negative tasa_status_t from the underlying transfer.
+ * @param dev      FPGA MUX link (same struct used by the passthrough path).
+ * @param dir      TX/RX direction (tasa_bfic_dir_t: RX = 0, TX = 1).
+ * @param polar    Polarization mode (Circular / Linear).
+ * @param phase    RX-Linear phase selection (0 / 90).
+ * @param poll_max Max Auto-mode-status poll iterations before giving up; 0 means
+ *                 poll indefinitely until the FPGA reports done.
+ * @return         TASA_OK on success, TASA_ERR_TIMEOUT if done never asserts,
+ *                 or a negative tasa_status_t from the underlying transfer.
  */
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
-                                      tasa_beam_phase_t phase);
+                                      tasa_beam_phase_t phase, unsigned int poll_max);
 
 #ifdef __cplusplus
 }

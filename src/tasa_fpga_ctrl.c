@@ -114,7 +114,7 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done) {
 }
 
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
-                                      tasa_beam_phase_t phase) {
+                                      tasa_beam_phase_t phase, unsigned int poll_max) {
     /* 1. Read current register (read-modify-write; keep unrelated bits). */
     uint8_t mode = 0;
     tasa_status_t st = tasa_fpga_ctrl_read_beam_mode(dev, &mode);
@@ -153,8 +153,9 @@ tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir,
     }
 #endif
 
-    /* 5. Block on Auto mode status (bit 3) until done or poll budget runs out. */
-    for (unsigned int i = 0; i < TASA_FPGA_CTRL_BEAM_POLL_MAX; i++) {
+    /* 5. Block on Auto mode status (bit 3) until done or poll budget runs out.
+     *    poll_max == 0 means "poll forever" until the FPGA reports done. */
+    for (unsigned int i = 0; poll_max == 0u || i < poll_max; i++) {
         bool done = false;
         st = tasa_fpga_ctrl_beam_is_done(dev, &done);
         if (st != TASA_OK) {
