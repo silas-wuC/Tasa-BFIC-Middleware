@@ -83,6 +83,22 @@ typedef enum {
 tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg_mode, uint8_t addr, uint8_t* data,
                                   size_t count);
 
+/**
+ * Write `count` bytes to an FPGA internal register block over MUX mode 0x2F.
+ *
+ * Mirrors tasa_fpga_ctrl_read but drives the write frame: the R/!W bit (bit 4)
+ * is cleared, there is no dummy byte, and MISO is ignored.
+ *
+ * @param dev       FPGA MUX link (same struct used by the passthrough path).
+ * @param reg_mode  Register Mode selector (Command byte bits 3:0).
+ * @param addr      Starting register address.
+ * @param data      Input buffer; `count` bytes are written from here.
+ * @param count     Byte count; 1..TASA_FPGA_CTRL_MAX_PAYLOAD.
+ * @return          TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_write(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg_mode, uint8_t addr,
+                                   const uint8_t* data, size_t count);
+
 /** System register block: FPGA firmware version starting address. */
 #define TASA_FPGA_CTRL_VERSION_ADDR 0x00u
 
