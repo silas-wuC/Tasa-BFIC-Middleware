@@ -247,6 +247,40 @@ tasa_status_t tasa_fpga_ctrl_read_beam_id(tasa_fpga_dev_t* dev, uint8_t beam_id[
  */
 tasa_status_t tasa_fpga_ctrl_write_beam_id(tasa_fpga_dev_t* dev, const uint8_t beam_id[TASA_FPGA_CTRL_BEAM_ID_LEN]);
 
+/** System register block: Beam mode control/status register address. */
+#define TASA_FPGA_CTRL_BEAM_MODE_ADDR 0x0Du
+
+/** Beam mode register byte count (single-byte, packs control + status bits). */
+#define TASA_FPGA_CTRL_BEAM_MODE_LEN 1u
+
+/*
+ * Beam mode register (0x0D) bitfield masks. R/W, Self Clear = N.
+ * Bits are decoded/encoded via these masks (read-modify-write); we deliberately
+ * do NOT wrap this register in a bitfield struct — bitfield bit order is
+ * implementation-defined and does not portably match the wire/FPGA layout.
+ *
+ *   bit 0  TX/RX selection      : 0 = RX mode,      1 = TX mode
+ *   bit 1  Linear/Circular       : 0 = Circular,     1 = Linear
+ *   bit 2  Phase select (RX Lin) : 0 = 0 phase,      1 = 90 phase (+32 % 64)
+ *   bit 3  Auto mode status      : 1 = busy,         0 = done   (READ-ONLY)
+ *   bit 4  Set Beam              : 1 = Start,        0 = none   (trigger)
+ */
+#define TASA_FPGA_CTRL_BEAM_MODE_TX_RX_MASK 0x01u
+#define TASA_FPGA_CTRL_BEAM_MODE_LIN_CIR_MASK 0x02u
+#define TASA_FPGA_CTRL_BEAM_MODE_PHASE_MASK 0x04u
+#define TASA_FPGA_CTRL_BEAM_MODE_AUTO_STAT_MASK 0x08u
+#define TASA_FPGA_CTRL_BEAM_MODE_SET_BEAM_MASK 0x10u
+
+/*
+ * Set Beam (bit 4) trigger style. The FPGA spec does not document whether the
+ * trigger is edge- or level-sensitive, and Self Clear = N means the bit is not
+ * auto-cleared. Default (0) = level trigger: write bit 4 = 1 and leave it.
+ * Define this to 1 for edge trigger: write 1, then write 0 to re-arm.
+ */
+#ifndef TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER
+#define TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER 0
+#endif
+
 #ifdef __cplusplus
 }
 #endif
