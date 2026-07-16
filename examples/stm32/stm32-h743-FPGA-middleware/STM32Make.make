@@ -77,6 +77,7 @@ endif
 C_SOURCES =  \
 ../../../src/tasa_bfic_bridge.c \
 ../../../src/tasa_bfic_mode.c \
+../../../src/tasa_fpga_ctrl.c \
 ../../../src/tasa_fpga_link.c \
 ../../../third_party/RENESAS-F6222-Driver/src/f6222_init.c \
 ../../../third_party/RENESAS-F6222-Driver/src/f6222_spi.c \
