@@ -16,6 +16,11 @@
   },
   {
     "directory": "/home/ubuntu/Code/Tasa-BFIC-Middleware",
+    "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -I include -I third_party/RENESAS-F6222-Driver/include -c src/tasa_fpga_ctrl.c -o src/tasa_fpga_ctrl.o",
+    "file": "src/tasa_fpga_ctrl.c"
+  },
+  {
+    "directory": "/home/ubuntu/Code/Tasa-BFIC-Middleware",
     "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -I include -I third_party/RENESAS-F6222-Driver/include -fsyntax-only include/tasa_bfic_mode.h",
     "file": "include/tasa_bfic_mode.h"
   },
@@ -28,5 +33,10 @@
     "directory": "/home/ubuntu/Code/Tasa-BFIC-Middleware",
     "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -I include -I third_party/RENESAS-F6222-Driver/include -fsyntax-only include/tasa_bfic_bridge.h",
     "file": "include/tasa_bfic_bridge.h"
+  },
+  {
+    "directory": "/home/ubuntu/Code/Tasa-BFIC-Middleware",
+    "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -I include -I third_party/RENESAS-F6222-Driver/include -fsyntax-only include/tasa_fpga_ctrl.h",
+    "file": "include/tasa_fpga_ctrl.h"
   }
 ]
