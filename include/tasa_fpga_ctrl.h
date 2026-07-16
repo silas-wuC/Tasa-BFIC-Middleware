@@ -93,6 +93,17 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
  */
 tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[TASA_FPGA_CTRL_VERSION_LEN]);
 
+/** System register block: DIP switch status address. */
+#define TASA_FPGA_CTRL_DIP_SWITCH_ADDR 0x04u
+
+/** DIP switch status byte count. */
+#define TASA_FPGA_CTRL_DIP_SWITCH_LEN 1u
+
+/**
+ * Read the 1-byte DIP switch status from System reg TASA_FPGA_CTRL_DIP_SWITCH_ADDR.
+ */
+tasa_status_t tasa_fpga_ctrl_read_dip_switch_status(tasa_fpga_dev_t* dev, uint8_t* status);
+
 #ifdef __cplusplus
 }
 #endif
