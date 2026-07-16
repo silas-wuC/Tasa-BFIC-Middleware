@@ -91,7 +91,8 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
  * Read the 4-byte FPGA firmware version over MUX mode 0x2F (System register block).
  *
  * Reads TASA_FPGA_CTRL_VERSION_LEN bytes starting at TASA_FPGA_CTRL_VERSION_ADDR
- * via TASA_FPGA_REG_SYSTEM. Output layout:
+ * via TASA_FPGA_REG_SYSTEM (Register Mode System, 0x08). Registers are
+ * read-only (R/W = R). Output layout:
  *   version[0] — Major
  *   version[1] — Minor
  *   version[2] — Patch
@@ -113,8 +114,8 @@ tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[
  * Read the 1-byte DIP switch status over MUX mode 0x2F (System register block).
  *
  * Reads TASA_FPGA_CTRL_DIP_SWITCH_LEN byte at TASA_FPGA_CTRL_DIP_SWITCH_ADDR
- * via TASA_FPGA_REG_SYSTEM (Register Mode System, 0x08). The register packs two
- * fields in one byte (read-only, default 0x00):
+ * via TASA_FPGA_REG_SYSTEM (Register Mode System, 0x08). Register is
+ * read-only (R/W = R, default 0x00). The register packs two fields in one byte:
  *   status[7:4] — HW Version [3:0]
  *   status[3:0] — Switch [3:0] (DIP switch positions)
  *
