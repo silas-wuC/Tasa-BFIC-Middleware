@@ -5,6 +5,9 @@
  * to select the BFIC route, then forward the native SPI frame unchanged.
  *
  * Platform-agnostic: caller supplies gpio_set_mux() and spi_xfer().
+ *
+ * tasa_fpga_mux_xfer() does not cap frame length; the caller (F6222 driver or
+ * board HAL) owns sizing. Ctrl-FPGA burst limits are in tasa_fpga_ctrl.h.
  */
 
 #pragma once
@@ -17,8 +20,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define TASA_FPGA_MUX_MAX_DATA 32u
 
 typedef enum {
     TASA_OK = 0,
