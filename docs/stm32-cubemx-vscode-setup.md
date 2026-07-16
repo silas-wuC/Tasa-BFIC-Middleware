@@ -276,20 +276,25 @@ cat /dev/ttyACM0
 
 MUX 用 GPIO 輸出選通道(見 [stm32-spi-primer.md](stm32-spi-primer.md) 的 `gpio_set_mux`)。推薦這連續 6 隻,**在 NUCLEO-H743ZI2 上全部落在同一個 Zio 接頭 CN10**,選這幾隻是有講究的,不是瞎湊的:
 
-| STM32 腳 | 建議 User Label | MUX bit | **針腳** | 該腳預設功能(參考) |
-|---------|-----------------|---------|---------|------------------|
-| PE7 | `MUX_SEL0` | bit0 | **CN10 pin16** | TIM1_ETR |
-| PE8 | `MUX_SEL1` | bit1 | **CN10 pin18** | TIM1_CH1N |
-| PE9 | `MUX_SEL2` | bit2 | **CN10 pin22** | TIM1_CH1 |
-| PE10 | `MUX_SEL3` | bit3 | **CN10 pin20** | TIM1_CH2N |
-| PE11 | `MUX_SEL4` | bit4 | **CN10 pin24** | TIM1_CH2 |
-| PE12 | `MUX_SEL5` | bit5 | **CN10 pin26** | TIM1_CH3N |
+| STM32 腳 | 建議 User Label | MUX bit | **CN10 針腳** | Zio 名 | 該腳預設功能(參考) |
+|---------|-----------------|---------|---------------|--------|------------------|
+| PE7 | `MUX_SEL0` | bit0 | **pin 20** | D41 | TIM1_ETR |
+| PE8 | `MUX_SEL1` | bit1 | **pin 18** | D42 | TIM1_CH1N |
+| PE9 | `MUX_SEL2` | bit2 | **pin 4** | D6 | TIM1_CH1 |
+| PE10 | `MUX_SEL3` | bit3 | **pin 24** | D40 | TIM1_CH2N |
+| PE11 | `MUX_SEL4` | bit4 | **pin 6** | D5 | TIM1_CH2 |
+| PE12 | `MUX_SEL5` | bit5 | **pin 26** | D39 | TIM1_CH3N |
 
-> 針腳位置查自 ST **UM2407**(NUCLEO-H743ZI2 User Manual)Table 21 CN10 Zio Connector。CN10 是板子上的 ST Zio 接頭之一(Arduino 相容擴充腳)。
+> 針腳位置查自 ST **UM2407**(NUCLEO-H743ZI2 User Manual) **Table 21** CN10 Zio Connector（已實測驗證）。CN10 是板子上的 ST Zio 接頭之一(Arduino 相容擴充腳)。
 >
-> ⚠️ **接線照 STM32 腳名對,不要照 pin 號順序,這坑不少人栽過**:CN10 上 PE9=pin22、PE10=pin20 是**對調**的(pin20 在 pin22 前面)。焊 `MUX_SEL2`(PE9) 要接 pin22、`MUX_SEL3`(PE10) 接 pin20,焊反了電路通但邏輯全亂,查半天都查不出來,氣死人。
+> ⚠️ **接線必照上表 STM32 腳名或 Zio 名對,勿臆測 pin 號連號**——CN10 上 MUX 腳**非連續**（4/6/18/20/24/26）,常見誤接:
+> - **pin 16 = PB7（D0）**, 非 PE7 → `MUX_SEL0` 焊這裡永遠沒反應
+> - **pin 22 = GND** → 誤當 SEL 腳會短路
+> - **pin 20 = PE7（SEL0）**, **pin 24 = PE10（SEL3）** → 兩者易搞混
 >
-> 6 隻全在 CN10 且都是偶數 pin(同一排),排線集中好接。GND 可取 CN10 上任一 GND pin(如 pin 8)。
+> **PE9（SEL2）焊橋**: 預設 **SB28+SB70 ON**, PE9 走 CN10 pin 4。若改 OFF, PE9 改接 CN9 pin 15（COMP2）, SEL2 在 CN10 上會失效。
+>
+> GND 可取 CN10 上任一 GND pin（如 pin 8、pin 22）。
 
 **選這 6 隻的理由**(不是瞎選的,有道理):
 
@@ -531,7 +536,7 @@ make clean && compiledb make -j
 | SPI CSB | **PD14**（GPIO_Output,User Label `SPI1_CSB` 或 `F6222_CSB`,初始高=未選中）；CN7 **pin 16**（D10）|
 | USART3 | Async 115200；**NUCLEO VCP：PD8=TX / PD9=RX**（`/dev/ttyACM0`）；**必手補 `__io_putchar` 見 §2.4** |
 | GPIO Out | PB0, PB7, PB14 |
-| GPIO MUX (建議) | PE7–PE12（6-bit，bit 7~12，同 port GPIOE）；NUCLEO-H743ZI2 全在 CN10：PE7=p16 PE8=p18 PE9=p22 PE10=p20 PE11=p24 PE12=p26 |
+| GPIO MUX (建議) | PE7–PE12（6-bit，bit 7~12，同 port GPIOE）；NUCLEO-H743ZI2 全在 CN10（UM2407 Table 21）：PE7=p20/D41 PE8=p18/D42 PE9=p4/D6 PE10=p24/D40 PE11=p6/D5 PE12=p26/D39 |
 | Clock | HSE Crystal，SYSCLK 64 MHz（未拉 PLL）|
 | CLT 路徑 | `/opt/st/stm32cubeclt_1.21.0/GNU-tools-for-STM32/bin` |
 | 燒錄 | OpenOCD + ST-Link，`target/stm32h7x.cfg` |
