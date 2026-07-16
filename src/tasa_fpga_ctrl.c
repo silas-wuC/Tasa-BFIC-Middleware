@@ -66,3 +66,8 @@ tasa_status_t tasa_fpga_ctrl_read_dip_switch_status(tasa_fpga_dev_t* dev, uint8_
     return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_DIP_SWITCH_ADDR, status,
                                TASA_FPGA_CTRL_DIP_SWITCH_LEN);
 }
+
+tasa_status_t tasa_fpga_ctrl_read_pol_id(tasa_fpga_dev_t* dev, uint8_t pol_id[TASA_FPGA_CTRL_POL_ID_LEN]) {
+    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_POL_ID_ADDR, pol_id,
+                               TASA_FPGA_CTRL_POL_ID_LEN);
+}
