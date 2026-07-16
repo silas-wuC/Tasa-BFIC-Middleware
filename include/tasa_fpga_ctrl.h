@@ -75,11 +75,14 @@ typedef enum {
 tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg_mode, uint8_t addr, uint8_t* data,
                                   size_t count);
 
+/** FPGA firmware version byte count (Major / Minor / Patch / Pre-Release). */
+#define TASA_FPGA_CTRL_VERSION_LEN 4u
+
 /**
  * Read the 4-byte FPGA firmware version (System reg 0x00..0x03:
  * Major / Minor / Patch / Pre-Release).
  */
-tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[4]);
+tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[TASA_FPGA_CTRL_VERSION_LEN]);
 
 #ifdef __cplusplus
 }

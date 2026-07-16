@@ -196,7 +196,7 @@ int main(void) {
     MX_SPI1_Init();
     MX_USART3_UART_Init();
     /* USER CODE BEGIN 2 */
-    uint8_t fpga_ver[4] = {0};
+    uint8_t fpga_ver[TASA_FPGA_CTRL_VERSION_LEN] = {0};
     if (tasa_fpga_ctrl_read_version(&fpga_link, fpga_ver) != TASA_OK) {
         Error_Handler();
     }
