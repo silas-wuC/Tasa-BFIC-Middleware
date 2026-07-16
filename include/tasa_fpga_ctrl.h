@@ -113,11 +113,17 @@ tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[
  * Read the 1-byte DIP switch status over MUX mode 0x2F (System register block).
  *
  * Reads TASA_FPGA_CTRL_DIP_SWITCH_LEN byte at TASA_FPGA_CTRL_DIP_SWITCH_ADDR
- * via TASA_FPGA_REG_SYSTEM. Returns the raw register value; field decode is
- * caller responsibility.
+ * via TASA_FPGA_REG_SYSTEM (Register Mode System, 0x08). The register packs two
+ * fields in one byte (read-only, default 0x00):
+ *   status[7:4] — HW Version [3:0]
+ *   status[3:0] — Switch [3:0] (DIP switch positions)
+ *
+ * Example decode:
+ *   hw_version    = (status >> 4) & 0x0Fu;
+ *   switch_status = status & 0x0Fu;
  *
  * @param dev    FPGA MUX link (same struct used by the passthrough path).
- * @param status Output byte; receives the DIP switch register value.
+ * @param status Output byte; receives the raw DIPSwitch status register value.
  * @return       TASA_OK on success, negative tasa_status_t on error.
  */
 tasa_status_t tasa_fpga_ctrl_read_dip_switch_status(tasa_fpga_dev_t* dev, uint8_t* status);
