@@ -281,6 +281,25 @@ tasa_status_t tasa_fpga_ctrl_write_beam_id(tasa_fpga_dev_t* dev, const uint8_t b
 #define TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER 0
 #endif
 
+/*
+ * Semantic beam-mode field values. Enum values match the raw bit values so a
+ * field can be OR'd straight into its mask position (0 = clear, 1 = set).
+ * TX/RX direction reuses the existing tasa_bfic_dir_t {RX = 0, TX = 1} from
+ * tasa_bfic_mode.h rather than defining a new type.
+ */
+
+/** Beam mode bit 1: polarization selection. */
+typedef enum {
+    TASA_BEAM_CIRCULAR = 0,
+    TASA_BEAM_LINEAR = 1,
+} tasa_beam_polar_t;
+
+/** Beam mode bit 2: RX-Linear phase selection. */
+typedef enum {
+    TASA_BEAM_PHASE_0 = 0,
+    TASA_BEAM_PHASE_90 = 1,
+} tasa_beam_phase_t;
+
 #ifdef __cplusplus
 }
 #endif
