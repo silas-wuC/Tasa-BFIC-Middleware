@@ -61,6 +61,8 @@ typedef enum {
 /* Command byte (bit 7 = Ctrl FPGA, bit 4 = R/!W: 1=read, 0=write). */
 #define TASA_FPGA_CTRL_CMD_CTRL_FPGA 0x80u
 #define TASA_FPGA_CTRL_CMD_READ 0x10u
+/* Write has no separate CMD macro: the R/!W bit (bit 4) cleared == write, so the
+ * write command byte is simply (TASA_FPGA_CTRL_CMD_CTRL_FPGA | reg_mode). */
 
 /** True dummy byte after CMD+Addr, giving FPGA time to react; no valid MISO data yet. */
 #define TASA_FPGA_CTRL_DUMMY_BYTE 0xDDu
