@@ -34,5 +34,6 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
 }
 
 tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[TASA_FPGA_CTRL_VERSION_LEN]) {
-    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, 0x00u, version, TASA_FPGA_CTRL_VERSION_LEN);
+    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_VERSION_ADDR, version,
+                               TASA_FPGA_CTRL_VERSION_LEN);
 }
