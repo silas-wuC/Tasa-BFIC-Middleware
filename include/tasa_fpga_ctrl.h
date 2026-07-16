@@ -88,8 +88,18 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
 #define TASA_FPGA_CTRL_VERSION_LEN 4u
 
 /**
- * Read the 4-byte FPGA firmware version (System reg TASA_FPGA_CTRL_VERSION_ADDR..:
- * Major / Minor / Patch / Pre-Release).
+ * Read the 4-byte FPGA firmware version over MUX mode 0x2F (System register block).
+ *
+ * Reads TASA_FPGA_CTRL_VERSION_LEN bytes starting at TASA_FPGA_CTRL_VERSION_ADDR
+ * via TASA_FPGA_REG_SYSTEM. Output layout:
+ *   version[0] — Major
+ *   version[1] — Minor
+ *   version[2] — Patch
+ *   version[3] — Pre-Release
+ *
+ * @param dev     FPGA MUX link (same struct used by the passthrough path).
+ * @param version Output buffer; must hold TASA_FPGA_CTRL_VERSION_LEN bytes.
+ * @return        TASA_OK on success, negative tasa_status_t on error.
  */
 tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[TASA_FPGA_CTRL_VERSION_LEN]);
 
@@ -100,7 +110,15 @@ tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[
 #define TASA_FPGA_CTRL_DIP_SWITCH_LEN 1u
 
 /**
- * Read the 1-byte DIP switch status from System reg TASA_FPGA_CTRL_DIP_SWITCH_ADDR.
+ * Read the 1-byte DIP switch status over MUX mode 0x2F (System register block).
+ *
+ * Reads TASA_FPGA_CTRL_DIP_SWITCH_LEN byte at TASA_FPGA_CTRL_DIP_SWITCH_ADDR
+ * via TASA_FPGA_REG_SYSTEM. Returns the raw register value; field decode is
+ * caller responsibility.
+ *
+ * @param dev    FPGA MUX link (same struct used by the passthrough path).
+ * @param status Output byte; receives the DIP switch register value.
+ * @return       TASA_OK on success, negative tasa_status_t on error.
  */
 tasa_status_t tasa_fpga_ctrl_read_dip_switch_status(tasa_fpga_dev_t* dev, uint8_t* status);
 
