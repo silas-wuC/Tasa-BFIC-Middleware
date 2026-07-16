@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 /** Max data bytes per Ctrl-FPGA burst (FPGA SPI Format spec). */
-#define TASA_FPGA_CTRL_MAX_PAYLOAD 18u
+#define TASA_FPGA_CTRL_MAX_PAYLOAD 20u
 
 /** Read frame overhead: CMD + Reg Addr + one dummy clock byte. */
 #define TASA_FPGA_CTRL_READ_OVERHEAD 3u
