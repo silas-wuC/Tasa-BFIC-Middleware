@@ -27,9 +27,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "f6222.h"
-#include "tasa_bfic_bridge.h"
 #include "tasa_board_hal.h"
+#include "tasa_fpga_ctrl.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,8 +54,6 @@ static tasa_fpga_dev_t fpga_link = {
     .spi_xfer = board_spi_xfer,
     .ctx = &hspi1,
 };
-static tasa_bfic_bridge_t bfic_bridge;
-static f6222_dev_t f6222_dev;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -199,14 +196,11 @@ int main(void) {
     MX_SPI1_Init();
     MX_USART3_UART_Init();
     /* USER CODE BEGIN 2 */
-    if (tasa_bfic_bridge_init(&bfic_bridge, &f6222_dev, &fpga_link, TASA_BFIC_MODE_FPGA_INTERNAL) != TASA_OK) {
+    uint8_t fpga_ver[4] = {0};
+    if (tasa_fpga_ctrl_read_version(&fpga_link, fpga_ver) != TASA_OK) {
         Error_Handler();
     }
-    printf("tasa_bfic_bridge_init succ\r\n");
-    if (f6222_init_global(&f6222_dev) != F6222_OK) {
-        Error_Handler();
-    }
-    printf("f6222_init_global succ\r\n");
+    printf("FPGA version: %u.%u.%u.%u\r\n", fpga_ver[0], fpga_ver[1], fpga_ver[2], fpga_ver[3]);
     /* USER CODE END 2 */
 
     /* Infinite loop */
