@@ -126,6 +126,33 @@ f6222_init(&dev, chip_addr);
 
 ---
 
+## FPGA 內部控制（0x2F）
+
+Mode 0x2F（`TASA_BFIC_MODE_FPGA_INTERNAL`）是個異類：它**不透傳 F6222 封包**，而是走 FPGA 自己的暫存器協議（Command byte + 暫存器位址 + dummy/data）。所以**不經 bridge、不用 F6222 driver**，直接用 `tasa_fpga_ctrl_*`，底層仍復用同一條 `tasa_fpga_dev_t` 送信管道（GPIO 自動切到 0x2F）。
+
+```c
+#include "tasa_fpga_ctrl.h"
+
+/* link 就是前面建立的 tasa_fpga_dev_t（gpio_set_mux + spi_xfer） */
+uint8_t ver[4] = {0};
+if (tasa_fpga_ctrl_read_version(&link, ver) == TASA_OK) {
+    printf("FPGA version: %u.%u.%u.%u\r\n", ver[0], ver[1], ver[2], ver[3]);
+}
+```
+
+底層時序（讀 System 暫存器，`CMD = 0x80 Ctrl_FPGA | 0x10 Read | 0x08 System = 0x98`）：
+
+| SPI  | byte0     | byte1 | byte2 | byte3…                     |
+|------|-----------|-------|-------|----------------------------|
+| MOSI | CMD(0x98) | 位址   | dummy | dummy…                     |
+| MISO | -         | -     | -     | Data(addr), Data(addr+1)…  |
+
+- 讀 `count` byte → 幀長 `count + 3`，收到的資料從 `rx[3]` 起算。
+- 通用讀：`tasa_fpga_ctrl_read(&link, TASA_FPGA_REG_SYSTEM, addr, buf, count)`（`count ≤ 29`）。
+- 目前只實作 System 讀；I2C State/Write/Result 與寫入為後續階段。
+
+---
+
 ## Mode 選擇速查
 
 | 你想做 | mode 常數 | 值 |
