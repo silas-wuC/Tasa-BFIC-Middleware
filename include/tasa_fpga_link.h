@@ -26,6 +26,7 @@ typedef enum {
     TASA_ERR_INVALID_ARG = -1,
     TASA_ERR_SPI = -2,
     TASA_ERR_GPIO = -3,
+    TASA_ERR_TIMEOUT = -4,
 } tasa_status_t;
 
 typedef struct {

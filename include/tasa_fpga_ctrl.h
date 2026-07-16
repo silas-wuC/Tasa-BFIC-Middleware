@@ -29,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "tasa_bfic_mode.h"
 #include "tasa_fpga_link.h"
 
 #ifdef __cplusplus
@@ -283,6 +284,15 @@ tasa_status_t tasa_fpga_ctrl_write_beam_id(tasa_fpga_dev_t* dev, const uint8_t b
 #endif
 
 /*
+ * Maximum Auto-mode-status poll iterations before tasa_fpga_ctrl_set_beam gives
+ * up and returns TASA_ERR_TIMEOUT. Each iteration is one register read; there is
+ * no delay primitive at this layer, so this bounds SPI reads, not wall time.
+ */
+#ifndef TASA_FPGA_CTRL_BEAM_POLL_MAX
+#define TASA_FPGA_CTRL_BEAM_POLL_MAX 1000u
+#endif
+
+/*
  * Semantic beam-mode field values. Enum values match the raw bit values so a
  * field can be OR'd straight into its mask position (0 = clear, 1 = set).
  * TX/RX direction reuses the existing tasa_bfic_dir_t {RX = 0, TX = 1} from
@@ -341,6 +351,26 @@ tasa_status_t tasa_fpga_ctrl_write_beam_mode(tasa_fpga_dev_t* dev, uint8_t mode)
  * @return     TASA_OK on success, negative tasa_status_t on error.
  */
 tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done);
+
+/**
+ * Configure and trigger a beam, then block until the FPGA reports done.
+ *
+ * Performs a read-modify-write on 0x0D so unrelated bits are preserved: sets
+ * the TX/RX (bit 0), Linear/Circular (bit 1) and Phase (bit 2) fields from the
+ * arguments, then pulses Set Beam (bit 4). The trigger style follows
+ * TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER (default level: write 1 and leave it).
+ * Finally it polls Auto mode status (bit 3) up to TASA_FPGA_CTRL_BEAM_POLL_MAX
+ * times, returning TASA_ERR_TIMEOUT if the FPGA never reports done.
+ *
+ * @param dev   FPGA MUX link (same struct used by the passthrough path).
+ * @param dir   TX/RX direction (tasa_bfic_dir_t: RX = 0, TX = 1).
+ * @param polar Polarization mode (Circular / Linear).
+ * @param phase RX-Linear phase selection (0 / 90).
+ * @return      TASA_OK on success, TASA_ERR_TIMEOUT if done never asserts,
+ *              or a negative tasa_status_t from the underlying transfer.
+ */
+tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
+                                      tasa_beam_phase_t phase);
 
 #ifdef __cplusplus
 }
