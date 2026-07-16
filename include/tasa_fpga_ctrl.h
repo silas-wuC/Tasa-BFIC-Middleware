@@ -178,9 +178,18 @@ tasa_status_t tasa_fpga_ctrl_read_pol_id(tasa_fpga_dev_t* dev, uint8_t pol_id[TA
 /**
  * Write the 4-byte Pol ID over MUX mode 0x2F (System register block, R/W).
  *
- * Byte layout is identical to tasa_fpga_ctrl_read_pol_id (pol_id[0] = MSB
- * @0x05). The caller supplies the 32-bit value already split into big-endian
- * bytes.
+ * Big-endian, MSB first:
+ *   pol_id[0] — [31:24] @0x05
+ *   pol_id[1] — [23:16] @0x06
+ *   pol_id[2] — [15:8]  @0x07
+ *   pol_id[3] — [7:0]   @0x08
+ * Caller supplies the 32-bit value already split into big-endian bytes.
+ *
+ * Example encode:
+ *   pol_id[0] = (uint8_t)(id >> 24);
+ *   pol_id[1] = (uint8_t)(id >> 16);
+ *   pol_id[2] = (uint8_t)(id >> 8);
+ *   pol_id[3] = (uint8_t)(id);
  *
  * @param dev    FPGA MUX link (same struct used by the passthrough path).
  * @param pol_id Input buffer; TASA_FPGA_CTRL_POL_ID_LEN bytes, MSB first.
