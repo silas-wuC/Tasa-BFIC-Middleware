@@ -147,6 +147,12 @@ tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[
  */
 tasa_status_t tasa_fpga_ctrl_read_dip_switch_status(tasa_fpga_dev_t* dev, uint8_t* status);
 
+/** System register block: Pol ID starting address (32-bit, MSB @0x05). */
+#define TASA_FPGA_CTRL_POL_ID_ADDR 0x05u
+
+/** Pol ID byte count (32-bit, big-endian across 0x05..0x08). */
+#define TASA_FPGA_CTRL_POL_ID_LEN 4u
+
 #ifdef __cplusplus
 }
 #endif
