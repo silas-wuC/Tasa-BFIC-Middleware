@@ -197,6 +197,12 @@ tasa_status_t tasa_fpga_ctrl_read_pol_id(tasa_fpga_dev_t* dev, uint8_t pol_id[TA
  */
 tasa_status_t tasa_fpga_ctrl_write_pol_id(tasa_fpga_dev_t* dev, const uint8_t pol_id[TASA_FPGA_CTRL_POL_ID_LEN]);
 
+/** System register block: Beam ID starting address (32-bit, MSB @0x09). */
+#define TASA_FPGA_CTRL_BEAM_ID_ADDR 0x09u
+
+/** Beam ID byte count (32-bit, big-endian across 0x09..0x0C). */
+#define TASA_FPGA_CTRL_BEAM_ID_LEN 4u
+
 #ifdef __cplusplus
 }
 #endif
