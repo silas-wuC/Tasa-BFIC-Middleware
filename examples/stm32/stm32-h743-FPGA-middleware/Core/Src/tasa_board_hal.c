@@ -8,13 +8,13 @@
 int board_gpio_set_mux(void* ctx, uint8_t mode_bits) {
     (void)ctx;
 
-    /* PE7–PE12 map to MUX bit0–bit5; drive each pin from its mode_bits bit. */
-    HAL_GPIO_WritePin(MUX_SEL0_GPIO_Port, MUX_SEL0_Pin, (mode_bits & 0x01u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MUX_SEL1_GPIO_Port, MUX_SEL1_Pin, (mode_bits & 0x02u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MUX_SEL2_GPIO_Port, MUX_SEL2_Pin, (mode_bits & 0x04u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MUX_SEL3_GPIO_Port, MUX_SEL3_Pin, (mode_bits & 0x08u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MUX_SEL4_GPIO_Port, MUX_SEL4_Pin, (mode_bits & 0x10u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MUX_SEL5_GPIO_Port, MUX_SEL5_Pin, (mode_bits & 0x20u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    /* SEL0 = MSB (bit5), SEL5 = LSB (bit0); drive each pin from its mode_bits bit. */
+    HAL_GPIO_WritePin(MUX_SEL0_GPIO_Port, MUX_SEL0_Pin, (mode_bits & 0x20u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(MUX_SEL1_GPIO_Port, MUX_SEL1_Pin, (mode_bits & 0x10u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(MUX_SEL2_GPIO_Port, MUX_SEL2_Pin, (mode_bits & 0x08u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(MUX_SEL3_GPIO_Port, MUX_SEL3_Pin, (mode_bits & 0x04u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(MUX_SEL4_GPIO_Port, MUX_SEL4_Pin, (mode_bits & 0x02u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(MUX_SEL5_GPIO_Port, MUX_SEL5_Pin, (mode_bits & 0x01u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     return 0;
 }
 
