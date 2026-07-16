@@ -300,6 +300,33 @@ typedef enum {
     TASA_BEAM_PHASE_90 = 1,
 } tasa_beam_phase_t;
 
+/**
+ * Read the 1-byte Beam mode register (0x0D) over MUX mode 0x2F (System block).
+ *
+ * Returns the raw register byte; decode fields with the BEAM_MODE bit masks.
+ * This is the low-level accessor — for a full configure-and-trigger sequence
+ * use tasa_fpga_ctrl_set_beam.
+ *
+ * @param dev  FPGA MUX link (same struct used by the passthrough path).
+ * @param mode Output byte; receives the raw Beam mode register value.
+ * @return     TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_read_beam_mode(tasa_fpga_dev_t* dev, uint8_t* mode);
+
+/**
+ * Write the 1-byte Beam mode register (0x0D) over MUX mode 0x2F (System block).
+ *
+ * Writes the raw register byte as given; the caller is responsible for
+ * assembling the bits (typically read-modify-write via the BEAM_MODE masks)
+ * so control bits are not clobbered. bit 3 (Auto mode status) is read-only on
+ * the FPGA side; any value written to it is ignored.
+ *
+ * @param dev  FPGA MUX link (same struct used by the passthrough path).
+ * @param mode Raw Beam mode register value to write.
+ * @return     TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_write_beam_mode(tasa_fpga_dev_t* dev, uint8_t mode);
+
 #ifdef __cplusplus
 }
 #endif
