@@ -22,12 +22,43 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "tasa_bfic_mode.h"
 #include "tasa_fpga_link.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Register Mode field (Command byte bits 3:0). Only SYSTEM is implemented for
+ * now; the I2C_* values are placeholders for later phases. */
+typedef enum {
+    TASA_FPGA_REG_SYSTEM = 0x8u,
+    TASA_FPGA_REG_I2C_STATE = 0x4u,
+    TASA_FPGA_REG_I2C_WRITE = 0x2u,
+    TASA_FPGA_REG_I2C_RESULT = 0x1u,
+} tasa_fpga_reg_mode_t;
+
+/* Command byte (bit 7 = Ctrl FPGA, bit 4 = R/!W: 1=read, 0=write). */
+#define TASA_FPGA_CTRL_CMD_CTRL_FPGA 0x80u
+#define TASA_FPGA_CTRL_CMD_READ 0x10u
+
+/**
+ * Read `count` bytes from an FPGA internal register block over MUX mode 0x2F.
+ *
+ * @param dev       FPGA MUX link (same struct used by the passthrough path).
+ * @param reg_mode  Register Mode selector (Command byte bits 3:0).
+ * @param addr      Starting register address.
+ * @param data      Output buffer, receives `count` bytes.
+ * @param count     Byte count; 1..(TASA_FPGA_MUX_MAX_DATA - 3).
+ * @return          TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg_mode, uint8_t addr, uint8_t* data,
+                                  size_t count);
+
+/**
+ * Read the 4-byte FPGA firmware version (System reg 0x00..0x03:
+ * Major / Minor / Patch / Pre-Release).
+ */
+tasa_status_t tasa_fpga_ctrl_read_version(tasa_fpga_dev_t* dev, uint8_t version[4]);
 
 #ifdef __cplusplus
 }
