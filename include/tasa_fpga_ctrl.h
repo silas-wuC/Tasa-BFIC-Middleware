@@ -62,6 +62,9 @@ typedef enum {
 #define TASA_FPGA_CTRL_CMD_CTRL_FPGA 0x80u
 #define TASA_FPGA_CTRL_CMD_READ 0x10u
 
+/** Dummy clock byte pattern; 0x5A gives a clear toggle on the scope for debug. */
+#define TASA_FPGA_CTRL_DUMMY_BYTE 0x5Au
+
 /**
  * Read `count` bytes from an FPGA internal register block over MUX mode 0x2F.
  *

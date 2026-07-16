@@ -20,7 +20,10 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
 
     tx[0] = (uint8_t)(TASA_FPGA_CTRL_CMD_CTRL_FPGA | TASA_FPGA_CTRL_CMD_READ | (uint8_t)reg_mode);
     tx[1] = addr;
-    /* tx[2..] stay 0 as dummy clock bytes. */
+    /* tx[0]=CMD, tx[1]=addr; everything after is dummy clock bytes. Fill them
+     * with a fixed pattern so the read burst is easy to spot on the scope. */
+    size_t dummy_off = TASA_FPGA_CTRL_READ_OVERHEAD - 1u;
+    memset(&tx[dummy_off], TASA_FPGA_CTRL_DUMMY_BYTE, len - dummy_off);
 
     tasa_status_t st = tasa_fpga_mux_xfer(dev, TASA_BFIC_MODE_FPGA_INTERNAL, tx, rx, len);
     if (st != TASA_OK) {
