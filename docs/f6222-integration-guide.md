@@ -202,7 +202,7 @@ f6222_status_t st = f6222_init(&dev, chip_addr);  /* chip_addr 對應硬體 ADD[
 | 值 | 意義 | 常見成因 |
 |---|---|---|
 | `TASA_OK` (0) | 成功 | |
-| `TASA_ERR_INVALID_ARG` (-1) | 參數錯誤 | `dev`/`ctx`/`tx` 為 NULL、`len` 為 0 或超過 `TASA_FPGA_MUX_MAX_DATA`(32)、mode 不合法 |
+| `TASA_ERR_INVALID_ARG` (-1) | 參數錯誤 | `tasa_fpga_mux_xfer`：`dev`/`tx` 為 NULL、`len` 為 0、mode 不合法；`tasa_fpga_ctrl_read`：`count` 為 0 或超過 `TASA_FPGA_CTRL_MAX_PAYLOAD`(18) |
 | `TASA_ERR_GPIO` (-2 對應來源) | `gpio_set_mux` 回傳負值 | 板級 HAL GPIO 操作失敗 |
 | `TASA_ERR_SPI` | `spi_xfer` 回傳負值 | 板級 HAL SPI 傳輸失敗（如 HAL_SPI_TransmitReceive timeout） |
 
