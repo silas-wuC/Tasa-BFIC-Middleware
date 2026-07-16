@@ -9,15 +9,14 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
     if (dev == NULL || data == NULL || count == 0u) {
         return TASA_ERR_INVALID_ARG;
     }
-
-    /* Frame = CMD + addr + one alignment dummy + `count` data bytes. */
-    size_t len = count + 3u;
-    if (len > TASA_FPGA_MUX_MAX_DATA) {
+    if (count > TASA_FPGA_CTRL_MAX_PAYLOAD) {
         return TASA_ERR_INVALID_ARG;
     }
 
-    uint8_t tx[TASA_FPGA_MUX_MAX_DATA] = {0};
-    uint8_t rx[TASA_FPGA_MUX_MAX_DATA] = {0};
+    size_t len = count + TASA_FPGA_CTRL_READ_OVERHEAD;
+
+    uint8_t tx[TASA_FPGA_CTRL_READ_MAX_FRAME] = {0};
+    uint8_t rx[TASA_FPGA_CTRL_READ_MAX_FRAME] = {0};
 
     tx[0] = (uint8_t)(TASA_FPGA_CTRL_CMD_CTRL_FPGA | TASA_FPGA_CTRL_CMD_READ | (uint8_t)reg_mode);
     tx[1] = addr;
@@ -28,7 +27,7 @@ tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg
         return st;
     }
 
-    memcpy(data, &rx[3], count);
+    memcpy(data, &rx[TASA_FPGA_CTRL_READ_OVERHEAD], count);
     return TASA_OK;
 }
 

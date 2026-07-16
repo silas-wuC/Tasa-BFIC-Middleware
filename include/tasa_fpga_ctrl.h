@@ -3,18 +3,24 @@
  *
  * Unlike the BFIC passthrough modes (0x00–0x2D) which forward native F6222
  * frames to a target BFIC, mode 0x2F (TASA_BFIC_MODE_FPGA_INTERNAL) speaks the
- * FPGA's own register protocol: a Command byte (Ctrl_FPGA | R/W | Register
- * Mode), a register address, then dummy/data bytes.
+ * FPGA Ctrl-FPGA protocol (Command byte bit 7 = 1):
+ *
+ *   bit 7     : 1 = Ctrl FPGA (0 = MUX passthrough)
+ *   bit 4     : R/W (1 = read, 0 = write)
+ *   bits 3:0  : Register Mode (System / I2C State / I2C Write / I2C Result)
+ *
+ * SPI Read Register (read `count` bytes starting at `addr`):
+ *   index:  0       1         2        3            4 ...
+ *   MOSI:   CMD(R)  Reg Addr  Dummy    Dummy        ...
+ *   MISO:   -       -         Dummy    Data(Addr)   Data(Addr+1) ...
+ *
+ * SPI Write Register (not implemented yet):
+ *   index:  0       1         2            3 ...
+ *   MOSI:   CMD(W)  Reg Addr  Data(Addr)   Data(Addr+1) ...
  *
  * This layer sits beside tasa_bfic_bridge — it does NOT involve the F6222
  * driver. It reuses tasa_fpga_mux_xfer() so GPIO MUX select (0x2F) and the
  * board SPI transfer are shared with the passthrough path.
- *
- * SPI Read framing (read `count` bytes starting at `addr`):
- *   index:  0     1      2      3           4             ...
- *   MOSI:   CMD   addr   dummy  dummy       dummy         ...
- *   MISO:   x     x      x      Data(addr)  Data(addr+1)  ...
- * Frame length = count + 3; received data starts at rx[3].
  */
 
 #pragma once
@@ -27,6 +33,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** Max data bytes per Ctrl-FPGA burst (FPGA SPI Format spec). */
+#define TASA_FPGA_CTRL_MAX_PAYLOAD 18u
+
+/** Read frame overhead: CMD + Reg Addr + one dummy clock byte. */
+#define TASA_FPGA_CTRL_READ_OVERHEAD 3u
+
+/** Max SPI clock bytes for one Ctrl-FPGA read transfer. */
+#define TASA_FPGA_CTRL_READ_MAX_FRAME (TASA_FPGA_CTRL_MAX_PAYLOAD + TASA_FPGA_CTRL_READ_OVERHEAD)
+
+/** Write frame overhead: CMD + Reg Addr (no dummy). Reserved for tasa_fpga_ctrl_write. */
+#define TASA_FPGA_CTRL_WRITE_OVERHEAD 2u
+
+/** Max SPI clock bytes for one Ctrl-FPGA write transfer. Reserved for future write API. */
+#define TASA_FPGA_CTRL_WRITE_MAX_FRAME (TASA_FPGA_CTRL_MAX_PAYLOAD + TASA_FPGA_CTRL_WRITE_OVERHEAD)
 
 /* Register Mode field (Command byte bits 3:0). Only SYSTEM is implemented for
  * now; the I2C_* values are placeholders for later phases. */
@@ -48,7 +69,7 @@ typedef enum {
  * @param reg_mode  Register Mode selector (Command byte bits 3:0).
  * @param addr      Starting register address.
  * @param data      Output buffer, receives `count` bytes.
- * @param count     Byte count; 1..(TASA_FPGA_MUX_MAX_DATA - 3).
+ * @param count     Byte count; 1..TASA_FPGA_CTRL_MAX_PAYLOAD.
  * @return          TASA_OK on success, negative tasa_status_t on error.
  */
 tasa_status_t tasa_fpga_ctrl_read(tasa_fpga_dev_t* dev, tasa_fpga_reg_mode_t reg_mode, uint8_t addr, uint8_t* data,
