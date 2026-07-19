@@ -177,9 +177,9 @@ tasa_status_t tasa_fpga_ctrl_write_flash_div_n(tasa_fpga_dev_t* dev, uint8_t fla
                                 TASA_FPGA_CTRL_FLASH_DIV_N_LEN);
 }
 
-uint32_t tasa_fpga_ctrl_flash_div_n_to_freq_hz(uint8_t flash_div_n, uint32_t pll_100_hz) {
+uint32_t tasa_fpga_ctrl_flash_div_n_to_freq_hz(uint8_t flash_div_n) {
     if (flash_div_n <= TASA_FPGA_CTRL_FLASH_DIV_N_LEGACY_MAX) {
         return TASA_FPGA_CTRL_FLASH_LEGACY_FREQ_HZ;
     }
-    return pll_100_hz / flash_div_n;
+    return TASA_FPGA_CTRL_PLL_100_HZ / flash_div_n;
 }

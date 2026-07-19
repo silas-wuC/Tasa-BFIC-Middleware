@@ -394,9 +394,8 @@ tasa_status_t tasa_fpga_ctrl_write_flash_div_n(tasa_fpga_dev_t* dev, uint8_t fla
 
 /**
  * Nominal PLL_100 base clock frequency (Hz) that FLASH_DIV_N divides down.
- * Single source of truth — pass this into tasa_fpga_ctrl_flash_div_n_to_freq_hz
- * instead of hardcoding the value at each call site. Update here if the PLL
- * design frequency changes.
+ * Single source of truth used internally by tasa_fpga_ctrl_flash_div_n_to_freq_hz.
+ * Update here if the PLL design frequency changes.
  */
 #define TASA_FPGA_CTRL_PLL_100_HZ 99750000u
 
@@ -408,15 +407,13 @@ tasa_status_t tasa_fpga_ctrl_write_flash_div_n(tasa_fpga_dev_t* dev, uint8_t fla
  * frequency in Hz.
  *
  * N = 0 or 1 selects legacy gated Flash SCLK (~99.75 MHz), bypassing the
- * registered divider entirely. For N >= 2, freq = pll_100_hz / N; even N
- * divides exactly, odd N >= 3 rounds down (integer division).
+ * registered divider entirely. For N >= 2, freq = TASA_FPGA_CTRL_PLL_100_HZ / N;
+ * even N divides exactly, odd N >= 3 rounds down (integer division).
  *
  * @param flash_div_n Raw FLASH_DIV_N register value.
- * @param pll_100_hz  PLL_100 base clock frequency in Hz that FLASH_DIV_N divides
- *                    (pass TASA_FPGA_CTRL_PLL_100_HZ for the nominal design frequency).
  * @return            Resulting Flash SCLK frequency in Hz.
  */
-uint32_t tasa_fpga_ctrl_flash_div_n_to_freq_hz(uint8_t flash_div_n, uint32_t pll_100_hz);
+uint32_t tasa_fpga_ctrl_flash_div_n_to_freq_hz(uint8_t flash_div_n);
 
 #ifdef __cplusplus
 }
