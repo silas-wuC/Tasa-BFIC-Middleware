@@ -169,5 +169,8 @@ tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir,
         if ((uint32_t)(dev->get_tick_ms(dev->ctx) - start) >= timeout_ms) {
             return TASA_ERR_TIMEOUT;
         }
+        /* Throttle: without this the loop busy-polls flat out, saturating
+         * the SPI bus and pegging the CPU on bare metal. */
+        dev->delay_ms(dev->ctx, 1);
     }
 }
