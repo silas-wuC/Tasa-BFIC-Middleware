@@ -357,6 +357,38 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done);
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
                                       tasa_beam_phase_t phase, uint32_t timeout_ms);
 
+/** System register block: runtime Flash SCLK divider value address. */
+#define TASA_FPGA_CTRL_FLASH_DIV_N_ADDR 0x0Eu
+
+/** Flash SCLK divider register byte count. */
+#define TASA_FPGA_CTRL_FLASH_DIV_N_LEN 1u
+
+/**
+ * Read the 1-byte Flash SCLK divider register (0x0E) over MUX mode 0x2F (System block).
+ *
+ * Reads TASA_FPGA_CTRL_FLASH_DIV_N_LEN byte at TASA_FPGA_CTRL_FLASH_DIV_N_ADDR
+ * via TASA_FPGA_REG_SYSTEM. Register is R/W, default 0x00 (N=0, legacy gated
+ * Flash SCLK). Returns the raw divider value N; use
+ * tasa_fpga_ctrl_flash_div_n_to_freq_hz to convert N to a clock frequency.
+ *
+ * @param dev          FPGA MUX link (same struct used by the passthrough path).
+ * @param flash_div_n  Output byte; receives the raw FLASH_DIV_N register value.
+ * @return             TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_read_flash_div_n(tasa_fpga_dev_t* dev, uint8_t* flash_div_n);
+
+/**
+ * Write the 1-byte Flash SCLK divider register (0x0E) over MUX mode 0x2F (System block).
+ *
+ * Sets the runtime Flash SCLK divider value N (freq = pll_100 / N for N >= 2;
+ * N = 0 or 1 selects legacy gated Flash SCLK, ~99.75 MHz).
+ *
+ * @param dev          FPGA MUX link (same struct used by the passthrough path).
+ * @param flash_div_n  Raw FLASH_DIV_N register value to write.
+ * @return             TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_write_flash_div_n(tasa_fpga_dev_t* dev, uint8_t flash_div_n);
+
 #ifdef __cplusplus
 }
 #endif

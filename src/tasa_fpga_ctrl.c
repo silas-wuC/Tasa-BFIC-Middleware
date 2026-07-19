@@ -113,6 +113,16 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done) {
     return TASA_OK;
 }
 
+tasa_status_t tasa_fpga_ctrl_read_flash_div_n(tasa_fpga_dev_t* dev, uint8_t* flash_div_n) {
+    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_FLASH_DIV_N_ADDR, flash_div_n,
+                               TASA_FPGA_CTRL_FLASH_DIV_N_LEN);
+}
+
+tasa_status_t tasa_fpga_ctrl_write_flash_div_n(tasa_fpga_dev_t* dev, uint8_t flash_div_n) {
+    return tasa_fpga_ctrl_write(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_FLASH_DIV_N_ADDR, &flash_div_n,
+                                TASA_FPGA_CTRL_FLASH_DIV_N_LEN);
+}
+
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
                                       tasa_beam_phase_t phase, uint32_t timeout_ms) {
     /* 1. Read current register (read-modify-write; keep unrelated bits). */
@@ -124,7 +134,7 @@ tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir,
 
     /* 2. Set only the config bits (0/1/2); clear Set Beam so we can pulse it. */
     beam_mode_reg &= (uint8_t)~(TASA_FPGA_CTRL_BEAM_MODE_TX_RX_MASK | TASA_FPGA_CTRL_BEAM_MODE_LIN_CIR_MASK |
-                       TASA_FPGA_CTRL_BEAM_MODE_PHASE_MASK | TASA_FPGA_CTRL_BEAM_MODE_SET_BEAM_MASK);
+                                TASA_FPGA_CTRL_BEAM_MODE_PHASE_MASK | TASA_FPGA_CTRL_BEAM_MODE_SET_BEAM_MASK);
     if (dir == TASA_BFIC_DIR_TX) {
         beam_mode_reg |= TASA_FPGA_CTRL_BEAM_MODE_TX_RX_MASK;
     }
