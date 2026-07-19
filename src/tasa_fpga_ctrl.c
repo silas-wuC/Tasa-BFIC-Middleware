@@ -87,8 +87,8 @@ tasa_status_t tasa_fpga_ctrl_write_beam_id(tasa_fpga_dev_t* dev, const uint8_t b
                                 TASA_FPGA_CTRL_BEAM_ID_LEN);
 }
 
-tasa_status_t tasa_fpga_ctrl_read_beam_mode(tasa_fpga_dev_t* dev, uint8_t* mode) {
-    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_BEAM_MODE_ADDR, mode,
+tasa_status_t tasa_fpga_ctrl_read_beam_mode(tasa_fpga_dev_t* dev, uint8_t* beam_mode_reg) {
+    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_BEAM_MODE_ADDR, beam_mode_reg,
                                TASA_FPGA_CTRL_BEAM_MODE_LEN);
 }
 

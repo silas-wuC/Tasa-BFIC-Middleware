@@ -309,11 +309,11 @@ typedef enum {
  * This is the low-level accessor — for a full configure-and-trigger sequence
  * use tasa_fpga_ctrl_set_beam.
  *
- * @param dev  FPGA MUX link (same struct used by the passthrough path).
- * @param mode Output byte; receives the raw Beam mode register value.
- * @return     TASA_OK on success, negative tasa_status_t on error.
+ * @param dev           FPGA MUX link (same struct used by the passthrough path).
+ * @param beam_mode_reg Output byte; receives the raw Beam mode register value.
+ * @return              TASA_OK on success, negative tasa_status_t on error.
  */
-tasa_status_t tasa_fpga_ctrl_read_beam_mode(tasa_fpga_dev_t* dev, uint8_t* mode);
+tasa_status_t tasa_fpga_ctrl_read_beam_mode(tasa_fpga_dev_t* dev, uint8_t* beam_mode_reg);
 
 /**
  * Write the 1-byte Beam mode register (0x0D) over MUX mode 0x2F (System block).
