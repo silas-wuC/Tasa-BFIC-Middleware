@@ -116,38 +116,38 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done) {
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
                                       tasa_beam_phase_t phase, uint32_t timeout_ms) {
     /* 1. Read current register (read-modify-write; keep unrelated bits). */
-    uint8_t mode = 0;
-    tasa_status_t st = tasa_fpga_ctrl_read_beam_mode(dev, &mode);
+    uint8_t beam_mode_reg = 0;
+    tasa_status_t st = tasa_fpga_ctrl_read_beam_mode(dev, &beam_mode_reg);
     if (st != TASA_OK) {
         return st;
     }
 
     /* 2. Set only the config bits (0/1/2); clear Set Beam so we can pulse it. */
-    mode &= (uint8_t)~(TASA_FPGA_CTRL_BEAM_MODE_TX_RX_MASK | TASA_FPGA_CTRL_BEAM_MODE_LIN_CIR_MASK |
+    beam_mode_reg &= (uint8_t)~(TASA_FPGA_CTRL_BEAM_MODE_TX_RX_MASK | TASA_FPGA_CTRL_BEAM_MODE_LIN_CIR_MASK |
                        TASA_FPGA_CTRL_BEAM_MODE_PHASE_MASK | TASA_FPGA_CTRL_BEAM_MODE_SET_BEAM_MASK);
     if (dir == TASA_BFIC_DIR_TX) {
-        mode |= TASA_FPGA_CTRL_BEAM_MODE_TX_RX_MASK;
+        beam_mode_reg |= TASA_FPGA_CTRL_BEAM_MODE_TX_RX_MASK;
     }
     if (polar == TASA_BEAM_LINEAR) {
-        mode |= TASA_FPGA_CTRL_BEAM_MODE_LIN_CIR_MASK;
+        beam_mode_reg |= TASA_FPGA_CTRL_BEAM_MODE_LIN_CIR_MASK;
     }
     if (phase == TASA_BEAM_PHASE_90) {
-        mode |= TASA_FPGA_CTRL_BEAM_MODE_PHASE_MASK;
+        beam_mode_reg |= TASA_FPGA_CTRL_BEAM_MODE_PHASE_MASK;
     }
-    st = tasa_fpga_ctrl_write_beam_mode(dev, mode);
+    st = tasa_fpga_ctrl_write_beam_mode(dev, beam_mode_reg);
     if (st != TASA_OK) {
         return st;
     }
 
     /* 3. Pulse Set Beam (bit 4 = 1) to start. */
-    st = tasa_fpga_ctrl_write_beam_mode(dev, (uint8_t)(mode | TASA_FPGA_CTRL_BEAM_MODE_SET_BEAM_MASK));
+    st = tasa_fpga_ctrl_write_beam_mode(dev, (uint8_t)(beam_mode_reg | TASA_FPGA_CTRL_BEAM_MODE_SET_BEAM_MASK));
     if (st != TASA_OK) {
         return st;
     }
 
 #if TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER
     /* 4. Edge trigger: drop Set Beam back to 0 to re-arm for next time. */
-    st = tasa_fpga_ctrl_write_beam_mode(dev, mode);
+    st = tasa_fpga_ctrl_write_beam_mode(dev, beam_mode_reg);
     if (st != TASA_OK) {
         return st;
     }
