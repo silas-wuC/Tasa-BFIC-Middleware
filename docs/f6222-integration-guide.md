@@ -118,6 +118,11 @@ int board_spi_xfer(void* ctx, const uint8_t* tx, uint8_t* rx, size_t len) {
     HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
     return (st == HAL_OK) ? 0 : -1;
 }
+
+/* 單調遞增毫秒 tick，供 set_beam 的超時等待使用 */
+uint32_t board_get_tick_ms(void* ctx) {
+    return HAL_GetTick();
+}
 ```
 
 STM32 SPI 週邊背景知識見 [stm32-spi-primer.md](stm32-spi-primer.md)。
@@ -128,6 +133,7 @@ STM32 SPI 週邊背景知識見 [stm32-spi-primer.md](stm32-spi-primer.md)。
 static tasa_fpga_dev_t link = {
     .gpio_set_mux = board_gpio_set_mux,
     .spi_xfer     = board_spi_xfer,
+    .get_tick_ms  = board_get_tick_ms,
     .ctx          = &hspi1,   /* 你的 SPI handle，會傳回 board_spi_xfer 的 ctx */
 };
 ```
