@@ -284,15 +284,6 @@ tasa_status_t tasa_fpga_ctrl_write_beam_id(tasa_fpga_dev_t* dev, const uint8_t b
 #endif
 
 /*
- * Maximum Auto-mode-status poll iterations before tasa_fpga_ctrl_set_beam gives
- * up and returns TASA_ERR_TIMEOUT. Each iteration is one register read; there is
- * no delay primitive at this layer, so this bounds SPI reads, not wall time.
- */
-#ifndef TASA_FPGA_CTRL_BEAM_POLL_MAX
-#define TASA_FPGA_CTRL_BEAM_POLL_MAX 1000u
-#endif
-
-/*
  * Semantic beam-mode field values. Enum values match the raw bit values so a
  * field can be OR'd straight into its mask position (0 = clear, 1 = set).
  * TX/RX direction reuses the existing tasa_bfic_dir_t {RX = 0, TX = 1} from
@@ -359,23 +350,22 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done);
  * the TX/RX (bit 0), Linear/Circular (bit 1) and Phase (bit 2) fields from the
  * arguments, then pulses Set Beam (bit 4). The trigger style follows
  * TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER (default level: write 1 and leave it).
- * Finally it polls Auto mode status (bit 3) up to `poll_max` times, returning
- * TASA_ERR_TIMEOUT if the FPGA never reports done. Each iteration is one
- * register read; there is no delay primitive at this layer, so `poll_max`
- * bounds SPI reads, not wall time. TASA_FPGA_CTRL_BEAM_POLL_MAX is provided as
- * a sane default the caller may pass.
+ * Finally it polls Auto mode status (bit 3) against a real wall-clock deadline
+ * (via dev->get_tick_ms), returning TASA_ERR_TIMEOUT if the FPGA never reports
+ * done within `timeout_ms`. Unlike a loop-count bound, this is portable across
+ * boards/SPI clock speeds and always terminates.
  *
- * @param dev      FPGA MUX link (same struct used by the passthrough path).
- * @param dir      TX/RX direction (tasa_bfic_dir_t: RX = 0, TX = 1).
- * @param polar    Polarization mode (Circular / Linear).
- * @param phase    RX-Linear phase selection (0 / 90).
- * @param poll_max Max Auto-mode-status poll iterations before giving up; 0 means
- *                 poll indefinitely until the FPGA reports done.
- * @return         TASA_OK on success, TASA_ERR_TIMEOUT if done never asserts,
- *                 or a negative tasa_status_t from the underlying transfer.
+ * @param dev        FPGA MUX link (same struct used by the passthrough path).
+ * @param dir        TX/RX direction (tasa_bfic_dir_t: RX = 0, TX = 1).
+ * @param polar      Polarization mode (Circular / Linear).
+ * @param phase      RX-Linear phase selection (0 / 90).
+ * @param timeout_ms Max wall-clock time to wait for done, in milliseconds.
+ * @return           TASA_OK on success, TASA_ERR_TIMEOUT if done never asserts
+ *                   within timeout_ms, or a negative tasa_status_t from the
+ *                   underlying transfer.
  */
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
-                                      tasa_beam_phase_t phase, unsigned int poll_max);
+                                      tasa_beam_phase_t phase, uint32_t timeout_ms);
 
 #ifdef __cplusplus
 }
