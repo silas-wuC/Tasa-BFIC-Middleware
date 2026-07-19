@@ -102,14 +102,14 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done) {
         return TASA_ERR_INVALID_ARG;
     }
 
-    uint8_t mode = 0;
-    tasa_status_t st = tasa_fpga_ctrl_read_beam_mode(dev, &mode);
+    uint8_t beam_mode_reg = 0;
+    tasa_status_t st = tasa_fpga_ctrl_read_beam_mode(dev, &beam_mode_reg);
     if (st != TASA_OK) {
         return st;
     }
 
     /* bit 3 inverted: 1 = busy, 0 = done. */
-    *done = ((mode & TASA_FPGA_CTRL_BEAM_MODE_AUTO_STAT_MASK) == 0u);
+    *done = ((beam_mode_reg & TASA_FPGA_CTRL_BEAM_MODE_AUTO_STAT_MASK) == 0u);
     return TASA_OK;
 }
 
