@@ -49,6 +49,17 @@ typedef struct {
      */
     uint32_t (*get_tick_ms)(void* ctx);
 
+    /**
+     * Sleep for at least `ms` milliseconds.
+     *
+     * On bare metal this is typically still a busy-wait (e.g. HAL_Delay());
+     * under an RTOS it can be mapped to a yielding primitive like vTaskDelay().
+     *
+     * @param ctx Opaque pointer from tasa_fpga_dev_t.ctx.
+     * @param ms  Milliseconds to sleep.
+     */
+    void (*delay_ms)(void* ctx, uint32_t ms);
+
     void* ctx;
 } tasa_fpga_dev_t;
 
