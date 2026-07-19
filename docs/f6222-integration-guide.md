@@ -123,6 +123,11 @@ int board_spi_xfer(void* ctx, const uint8_t* tx, uint8_t* rx, size_t len) {
 uint32_t board_get_tick_ms(void* ctx) {
     return HAL_GetTick();
 }
+
+/* 睡一下，讓 set_beam 的等待迴圈別瘋狂空轉打爆 SPI 總線 */
+void board_delay_ms(void* ctx, uint32_t ms) {
+    HAL_Delay(ms);
+}
 ```
 
 STM32 SPI 週邊背景知識見 [stm32-spi-primer.md](stm32-spi-primer.md)。
@@ -134,6 +139,7 @@ static tasa_fpga_dev_t link = {
     .gpio_set_mux = board_gpio_set_mux,
     .spi_xfer     = board_spi_xfer,
     .get_tick_ms  = board_get_tick_ms,
+    .delay_ms     = board_delay_ms,
     .ctx          = &hspi1,   /* 你的 SPI handle，會傳回 board_spi_xfer 的 ctx */
 };
 ```

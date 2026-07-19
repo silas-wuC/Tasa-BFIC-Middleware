@@ -52,6 +52,11 @@ int board_spi_xfer(void* ctx, const uint8_t* tx, uint8_t* rx, size_t len) {
 uint32_t board_get_tick_ms(void* ctx) {
     return HAL_GetTick();
 }
+
+/* ④ 睡一下，讓等待迴圈別瘋狂空轉 */
+void board_delay_ms(void* ctx, uint32_t ms) {
+    HAL_Delay(ms);
+}
 ```
 
 ### 不用寫
@@ -77,6 +82,7 @@ static tasa_fpga_dev_t link = {
     .gpio_set_mux = board_gpio_set_mux,
     .spi_xfer       = board_spi_xfer,
     .get_tick_ms    = board_get_tick_ms,
+    .delay_ms       = board_delay_ms,
     .ctx            = NULL,
 };
 
