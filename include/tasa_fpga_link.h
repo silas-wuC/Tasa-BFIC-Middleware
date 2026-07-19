@@ -40,6 +40,15 @@ typedef struct {
      */
     int (*gpio_set_mux)(void* ctx, uint8_t mode_bits);
     int (*spi_xfer)(void* ctx, const uint8_t* tx, uint8_t* rx, size_t len);
+
+    /**
+     * Monotonically increasing millisecond tick, for timeout math.
+     *
+     * @param ctx Opaque pointer from tasa_fpga_dev_t.ctx.
+     * @return    Current tick in milliseconds (e.g. HAL_GetTick() on STM32).
+     */
+    uint32_t (*get_tick_ms)(void* ctx);
+
     void* ctx;
 } tasa_fpga_dev_t;
 
