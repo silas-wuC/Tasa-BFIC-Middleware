@@ -183,3 +183,20 @@ uint32_t tasa_fpga_ctrl_flash_div_n_to_freq_hz(uint8_t flash_div_n) {
     }
     return TASA_FPGA_CTRL_PLL_100_HZ / flash_div_n;
 }
+
+tasa_status_t tasa_fpga_ctrl_read_bf_div_n(tasa_fpga_dev_t* dev, uint8_t* bf_div_n) {
+    return tasa_fpga_ctrl_read(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_BF_DIV_N_ADDR, bf_div_n,
+                               TASA_FPGA_CTRL_BF_DIV_N_LEN);
+}
+
+tasa_status_t tasa_fpga_ctrl_write_bf_div_n(tasa_fpga_dev_t* dev, uint8_t bf_div_n) {
+    return tasa_fpga_ctrl_write(dev, TASA_FPGA_REG_SYSTEM, TASA_FPGA_CTRL_BF_DIV_N_ADDR, &bf_div_n,
+                                TASA_FPGA_CTRL_BF_DIV_N_LEN);
+}
+
+uint32_t tasa_fpga_ctrl_bf_div_n_to_freq_hz(uint8_t bf_div_n) {
+    if (bf_div_n <= TASA_FPGA_CTRL_BF_DIV_N_LEGACY_MAX) {
+        return TASA_FPGA_CTRL_BF_LEGACY_FREQ_HZ;
+    }
+    return TASA_FPGA_CTRL_PLL_50_HZ / bf_div_n;
+}

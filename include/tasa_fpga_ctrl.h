@@ -415,6 +415,64 @@ tasa_status_t tasa_fpga_ctrl_write_flash_div_n(tasa_fpga_dev_t* dev, uint8_t fla
  */
 uint32_t tasa_fpga_ctrl_flash_div_n_to_freq_hz(uint8_t flash_div_n);
 
+/** System register block: runtime BFIC SPI SCLK divider value address. */
+#define TASA_FPGA_CTRL_BF_DIV_N_ADDR 0x0Fu
+
+/** BFIC SPI SCLK divider register byte count. */
+#define TASA_FPGA_CTRL_BF_DIV_N_LEN 1u
+
+/**
+ * Read the 1-byte BFIC SPI SCLK divider register (0x0F) over MUX mode 0x2F (System block).
+ *
+ * Reads TASA_FPGA_CTRL_BF_DIV_N_LEN byte at TASA_FPGA_CTRL_BF_DIV_N_ADDR
+ * via TASA_FPGA_REG_SYSTEM. Register is R/W, default 0x00 (legacy gated
+ * BFIC SPI SCLK). Reset default after N is programmed is N=4 (~12.47 MHz).
+ * Use tasa_fpga_ctrl_bf_div_n_to_freq_hz to convert N to a clock frequency.
+ *
+ * @param dev       FPGA MUX link (same struct used by the passthrough path).
+ * @param bf_div_n  Output byte; receives the raw BF_DIV_N register value.
+ * @return          TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_read_bf_div_n(tasa_fpga_dev_t* dev, uint8_t* bf_div_n);
+
+/**
+ * Write the 1-byte BFIC SPI SCLK divider register (0x0F) over MUX mode 0x2F (System block).
+ *
+ * Sets the runtime BFIC SPI SCLK divider value N (freq = pll_50 / N for N >= 2;
+ * N = 0 or 1 selects legacy gated BFIC SPI SCLK, ~49.9 MHz).
+ *
+ * @param dev       FPGA MUX link (same struct used by the passthrough path).
+ * @param bf_div_n  Raw BF_DIV_N register value to write.
+ * @return          TASA_OK on success, negative tasa_status_t on error.
+ */
+tasa_status_t tasa_fpga_ctrl_write_bf_div_n(tasa_fpga_dev_t* dev, uint8_t bf_div_n);
+
+/** N <= this value selects legacy gated BFIC SPI SCLK, bypassing the pll_50/N divider. */
+#define TASA_FPGA_CTRL_BF_DIV_N_LEGACY_MAX 1u
+
+/**
+ * Nominal PLL_50 base clock frequency (Hz) that BF_DIV_N divides down.
+ * Single source of truth used internally by tasa_fpga_ctrl_bf_div_n_to_freq_hz.
+ * Update here if the PLL design frequency changes.
+ */
+#define TASA_FPGA_CTRL_PLL_50_HZ 49900000u
+
+/** Legacy gated BFIC SPI SCLK frequency (Hz) selected when BF_DIV_N <= TASA_FPGA_CTRL_BF_DIV_N_LEGACY_MAX. */
+#define TASA_FPGA_CTRL_BF_LEGACY_FREQ_HZ TASA_FPGA_CTRL_PLL_50_HZ
+
+/**
+ * Convert a BFIC SPI SCLK divider value (0x0F BF_DIV_N) to its resulting clock
+ * frequency in Hz.
+ *
+ * N = 0 or 1 selects legacy gated BFIC SPI SCLK (~49.9 MHz), bypassing the
+ * registered divider entirely. For N >= 2, freq = TASA_FPGA_CTRL_PLL_50_HZ / N;
+ * even N divides exactly, odd N >= 3 rounds down (integer division).
+ *
+ * @param bf_div_n Raw BF_DIV_N register value.
+ * @return         Resulting BFIC SPI SCLK frequency in Hz.
+ */
+uint32_t tasa_fpga_ctrl_bf_div_n_to_freq_hz(uint8_t bf_div_n);
+
 #ifdef __cplusplus
 }
 #endif
