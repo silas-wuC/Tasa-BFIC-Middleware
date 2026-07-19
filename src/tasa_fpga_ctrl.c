@@ -114,7 +114,7 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done) {
 }
 
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
-                                      tasa_beam_phase_t phase, unsigned int poll_max) {
+                                      tasa_beam_phase_t phase, uint32_t timeout_ms) {
     /* 1. Read current register (read-modify-write; keep unrelated bits). */
     uint8_t mode = 0;
     tasa_status_t st = tasa_fpga_ctrl_read_beam_mode(dev, &mode);
@@ -153,9 +153,9 @@ tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir,
     }
 #endif
 
-    /* 5. Block on Auto mode status (bit 3) until done or poll budget runs out.
-     *    poll_max == 0 means "poll forever" until the FPGA reports done. */
-    for (unsigned int i = 0; poll_max == 0u || i < poll_max; i++) {
+    /* 5. Block on Auto mode status (bit 3) until done or the deadline passes. */
+    uint32_t start = dev->get_tick_ms(dev->ctx);
+    for (;;) {
         bool done = false;
         st = tasa_fpga_ctrl_beam_is_done(dev, &done);
         if (st != TASA_OK) {
@@ -164,7 +164,10 @@ tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir,
         if (done) {
             return TASA_OK;
         }
+        /* Unsigned wrap-around subtraction: stays correct even if the tick
+         * counter has rolled over since `start`. */
+        if ((uint32_t)(dev->get_tick_ms(dev->ctx) - start) >= timeout_ms) {
+            return TASA_ERR_TIMEOUT;
+        }
     }
-
-    return TASA_ERR_TIMEOUT;
 }
