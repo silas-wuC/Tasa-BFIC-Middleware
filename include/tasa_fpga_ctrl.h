@@ -323,11 +323,11 @@ tasa_status_t tasa_fpga_ctrl_read_beam_mode(tasa_fpga_dev_t* dev, uint8_t* mode)
  * so control bits are not clobbered. bit 3 (Auto mode status) is read-only on
  * the FPGA side; any value written to it is ignored.
  *
- * @param dev  FPGA MUX link (same struct used by the passthrough path).
- * @param mode Raw Beam mode register value to write.
- * @return     TASA_OK on success, negative tasa_status_t on error.
+ * @param dev           FPGA MUX link (same struct used by the passthrough path).
+ * @param beam_mode_reg Raw Beam mode register value to write.
+ * @return              TASA_OK on success, negative tasa_status_t on error.
  */
-tasa_status_t tasa_fpga_ctrl_write_beam_mode(tasa_fpga_dev_t* dev, uint8_t mode);
+tasa_status_t tasa_fpga_ctrl_write_beam_mode(tasa_fpga_dev_t* dev, uint8_t beam_mode_reg);
 
 /**
  * Query the Auto mode status bit (0x0D bit 3) to see if beam setting finished.
