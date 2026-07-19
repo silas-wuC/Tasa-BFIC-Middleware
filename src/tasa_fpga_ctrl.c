@@ -123,6 +123,13 @@ tasa_status_t tasa_fpga_ctrl_write_flash_div_n(tasa_fpga_dev_t* dev, uint8_t fla
                                 TASA_FPGA_CTRL_FLASH_DIV_N_LEN);
 }
 
+uint32_t tasa_fpga_ctrl_flash_div_n_to_freq_hz(uint8_t flash_div_n, uint32_t pll_100_hz) {
+    if (flash_div_n <= TASA_FPGA_CTRL_FLASH_DIV_N_LEGACY_MAX) {
+        return TASA_FPGA_CTRL_FLASH_LEGACY_FREQ_HZ;
+    }
+    return pll_100_hz / flash_div_n;
+}
+
 tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir, tasa_beam_polar_t polar,
                                       tasa_beam_phase_t phase, uint32_t timeout_ms) {
     /* 1. Read current register (read-modify-write; keep unrelated bits). */
