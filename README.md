@@ -47,6 +47,11 @@ int board_spi_xfer(void* ctx, const uint8_t* tx, uint8_t* rx, size_t len) {
     /* HAL_SPI_TransmitReceive… */
     return 0;
 }
+
+/* ③ 單調遞增毫秒 tick，給超時等待用 */
+uint32_t board_get_tick_ms(void* ctx) {
+    return HAL_GetTick();
+}
 ```
 
 ### 不用寫
@@ -71,6 +76,7 @@ F6222 driver 內部每次寫暫存器都會呼叫 `dev->spi_xfer`。攔住這一
 static tasa_fpga_dev_t link = {
     .gpio_set_mux = board_gpio_set_mux,
     .spi_xfer       = board_spi_xfer,
+    .get_tick_ms    = board_get_tick_ms,
     .ctx            = NULL,
 };
 
