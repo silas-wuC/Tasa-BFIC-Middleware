@@ -274,16 +274,6 @@ tasa_status_t tasa_fpga_ctrl_write_beam_id(tasa_fpga_dev_t* dev, const uint8_t b
 #define TASA_FPGA_CTRL_BEAM_MODE_SET_BEAM_MASK 0x10u
 
 /*
- * Set Beam (bit 4) trigger style. The FPGA spec does not document whether the
- * trigger is edge- or level-sensitive, and Self Clear = N means the bit is not
- * auto-cleared. Default (0) = level trigger: write bit 4 = 1 and leave it.
- * Define this to 1 for edge trigger: write 1, then write 0 to re-arm.
- */
-#ifndef TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER
-#define TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER 0
-#endif
-
-/*
  * Semantic beam-mode field values. Enum values match the raw bit values so a
  * field can be OR'd straight into its mask position (0 = clear, 1 = set).
  * TX/RX direction reuses the existing tasa_bfic_dir_t {RX = 0, TX = 1} from
@@ -348,8 +338,8 @@ tasa_status_t tasa_fpga_ctrl_beam_is_done(tasa_fpga_dev_t* dev, bool* done);
  *
  * Performs a read-modify-write on 0x0D so unrelated bits are preserved: sets
  * the TX/RX (bit 0), Linear/Circular (bit 1) and Phase (bit 2) fields from the
- * arguments, then pulses Set Beam (bit 4). The trigger style follows
- * TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER (default level: write 1 and leave it).
+ * arguments, then triggers Set Beam (bit 4) with a level write (write 1 and
+ * leave it — Self Clear = N, and the FPGA re-arms on its own).
  * Finally it polls Auto mode status (bit 3) against a real wall-clock deadline
  * (via dev->get_tick_ms), returning TASA_ERR_TIMEOUT if the FPGA never reports
  * done within `timeout_ms`. Unlike a loop-count bound, this is portable across

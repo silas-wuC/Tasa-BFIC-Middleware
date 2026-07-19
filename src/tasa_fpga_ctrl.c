@@ -145,15 +145,7 @@ tasa_status_t tasa_fpga_ctrl_set_beam(tasa_fpga_dev_t* dev, tasa_bfic_dir_t dir,
         return st;
     }
 
-#if TASA_FPGA_CTRL_BEAM_SET_EDGE_TRIGGER
-    /* 4. Edge trigger: drop Set Beam back to 0 to re-arm for next time. */
-    st = tasa_fpga_ctrl_write_beam_mode(dev, beam_mode_reg);
-    if (st != TASA_OK) {
-        return st;
-    }
-#endif
-
-    /* 5. Block on Auto mode status (bit 3) until done or the deadline passes. */
+    /* 4. Block on Auto mode status (bit 3) until done or the deadline passes. */
     uint32_t start = dev->get_tick_ms(dev->ctx);
     for (;;) {
         bool done = false;
